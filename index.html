@@ -3,87 +3,53 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Les Cendres de Veyle — Tactique</title>
+<title>Les Cendres de Veyle</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Spectral:ital,wght@0,400;0,600;1,400&display=swap');
-
 :root{
-  --bg:#0e0f14; --bg2:#15171f; --panel:#1c1f29; --panel2:#23273399;
-  --ink:#e8e2d2; --muted:#9a9486; --line:#3a3324;
+  --bg:#0e0f14; --panel:#1c1f29; --ink:#e8e2d2; --muted:#9a9486; --line:#3a3324;
   --gold:#d8a24a; --gold2:#f0c879; --ember:#c0432b; --ember2:#e8693f;
-  --blue:#4f7fb0; --blue2:#7fb0d8; --green:#5f9a5a;
   --player:#5aa0e0; --enemy:#d8503a; --boss:#e8b23a;
   --move:#3f7fc04d; --movb:#6fb0f0; --atk:#c0432b40; --atkb:#e8693f; --skill:#7a4fb04d; --skillb:#b07fe0; --threat:#c0291f33;
+  --cs:46px;
 }
 *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
 html,body{margin:0; height:100%;}
-body{
-  background:
-    radial-gradient(1200px 700px at 75% -10%, #2a2014 0%, transparent 55%),
-    radial-gradient(900px 600px at 10% 110%, #1a1320 0%, transparent 55%),
-    var(--bg);
-  color:var(--ink); font-family:'Spectral',Georgia,serif;
-  min-height:100%; overflow-x:hidden;
-}
-body::after{ /* grain */
-  content:""; position:fixed; inset:0; pointer-events:none; opacity:.05; z-index:9999;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
+body{background:radial-gradient(1200px 700px at 75% -10%,#2a2014 0%,transparent 55%),radial-gradient(900px 600px at 10% 110%,#1a1320 0%,transparent 55%),var(--bg);
+  color:var(--ink); font-family:'Spectral',Georgia,serif; min-height:100%; overflow-x:hidden;}
+body::after{content:""; position:fixed; inset:0; pointer-events:none; opacity:.05; z-index:9999;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
 h1,h2,h3,.disp{font-family:'Cinzel',serif; letter-spacing:.04em;}
-
-/* ---------- LAYOUT ---------- */
 #app{max-width:1180px; margin:0 auto; padding:14px;}
-.topbar{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
-  border-bottom:1px solid var(--line); padding-bottom:10px; margin-bottom:12px;}
+.topbar{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; border-bottom:1px solid var(--line); padding-bottom:10px; margin-bottom:12px;}
 .title{display:flex; align-items:baseline; gap:12px;}
-.title h1{font-size:clamp(20px,3vw,30px); margin:0; color:var(--gold2);
-  text-shadow:0 0 18px #d8a24a33;}
+.title h1{font-size:clamp(20px,3vw,30px); margin:0; color:var(--gold2); text-shadow:0 0 18px #d8a24a33;}
 .title .sub{color:var(--muted); font-style:italic; font-size:13px;}
-.turnpill{font-family:'Cinzel'; font-size:14px; padding:6px 14px; border:1px solid var(--line);
-  background:linear-gradient(#23273366,#15171f88); border-radius:30px;}
+.turnpill{font-family:'Cinzel'; font-size:14px; padding:6px 14px; border:1px solid var(--line); background:linear-gradient(#23273366,#15171f88); border-radius:30px;}
 .turnpill b{color:var(--gold2);}
-.phase-player{box-shadow:0 0 0 1px #4f7fb066, 0 0 20px #4f7fb033;}
-.phase-enemy{box-shadow:0 0 0 1px #c0432b66, 0 0 20px #c0432b33;}
-
+.phase-player{box-shadow:0 0 0 1px #4f7fb066,0 0 20px #4f7fb033;}
+.phase-enemy{box-shadow:0 0 0 1px #c0432b66,0 0 20px #c0432b33;}
 .main{display:grid; grid-template-columns:1fr 320px; gap:16px; align-items:start;}
 @media(max-width:900px){ .main{grid-template-columns:1fr;} }
-
-.boardwrap{position:relative; overflow:auto; border:1px solid var(--line);
-  border-radius:10px; padding:10px; background:
-    repeating-linear-gradient(45deg,#12131a,#12131a 12px,#13141c 12px,#13141c 24px);
-  box-shadow:inset 0 0 60px #000a;}
+.boardwrap{position:relative; overflow:auto; border:1px solid var(--line); border-radius:10px; padding:10px;
+  background:repeating-linear-gradient(45deg,#12131a,#12131a 12px,#13141c 12px,#13141c 24px); box-shadow:inset 0 0 60px #000a;}
 #board{position:relative; display:grid; gap:0; margin:0 auto; width:max-content;}
-.cell{position:relative; width:var(--cs,46px); height:var(--cs,46px); outline:1px solid #ffffff0a;
-  display:flex; align-items:center; justify-content:center; cursor:default; font-size:calc(var(--cs,46px)*0.52);
-  transition:box-shadow .08s;}
-
-/* terrain */
+.cell{position:relative; width:var(--cs); height:var(--cs); outline:1px solid #ffffff0a; display:flex; align-items:center; justify-content:center; font-size:calc(var(--cs)*0.5); transition:box-shadow .08s;}
 .t-plain{background:linear-gradient(#23281e,#1c2018);}
 .t-forest{background:radial-gradient(circle at 50% 40%,#2f4a2a,#1d2c1a);}
 .t-mount{background:linear-gradient(#4a4334,#2c281f);}
 .t-fort{background:radial-gradient(circle at 50% 45%,#3a3550,#21202e);}
-.t-water{background:linear-gradient(#1c3550,#142638); cursor:not-allowed;}
+.t-water{background:linear-gradient(#1c3550,#142638);}
 .t-wall{background:repeating-linear-gradient(90deg,#2a2620,#2a2620 6px,#211d18 6px,#211d18 12px);}
 .t-throne{background:radial-gradient(circle at 50% 40%,#5a4318,#2e2410);}
-.terr-ico{position:absolute; font-size:14px; opacity:.5; right:2px; bottom:0; pointer-events:none;}
-
-/* overlays */
-.cell.move::after{content:""; position:absolute; inset:3px; background:var(--move);
-  border:1px solid var(--movb); border-radius:4px; pointer-events:none; animation:pulse 1.6s infinite;}
-.cell.atk::after{content:""; position:absolute; inset:3px; background:var(--atk);
-  border:1px solid var(--atkb); border-radius:4px; pointer-events:none;}
-.cell.skill::after{content:""; position:absolute; inset:3px; background:var(--skill);
-  border:1px solid var(--skillb); border-radius:4px; pointer-events:none;}
+.terr-ico{position:absolute; font-size:calc(var(--cs)*0.32); opacity:.5; right:2px; bottom:0; pointer-events:none;}
+.cell.move::after{content:""; position:absolute; inset:3px; background:var(--move); border:1px solid var(--movb); border-radius:4px; pointer-events:none; animation:pulse 1.6s infinite;}
+.cell.atk::after{content:""; position:absolute; inset:3px; background:var(--atk); border:1px solid var(--atkb); border-radius:4px; pointer-events:none;}
+.cell.skill::after{content:""; position:absolute; inset:3px; background:var(--skill); border:1px solid var(--skillb); border-radius:4px; pointer-events:none;}
 .cell.threat{box-shadow:inset 0 0 0 2px #c0291f55; background-image:linear-gradient(var(--threat),var(--threat));}
-.cell.path::before{content:""; position:absolute; width:10px;height:10px;border-radius:50%;
-  background:var(--gold2); box-shadow:0 0 8px var(--gold2); opacity:.8;}
 .cell.tgt{box-shadow:inset 0 0 0 3px var(--ember2); animation:pulse 1s infinite;}
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.45;}}
-
-/* unit token */
-.unit{position:absolute; width:var(--cs,46px); height:var(--cs,46px); display:flex; align-items:center; justify-content:center;
-  font-size:calc(var(--cs,46px)*0.54); pointer-events:none; transition:transform .14s ease, left .18s ease, top .18s ease; z-index:5;
-  filter:drop-shadow(0 2px 1px #000a);}
+.unit{position:absolute; display:flex; align-items:center; justify-content:center; font-size:calc(var(--cs)*0.54); pointer-events:none; transition:left .16s ease,top .16s ease; z-index:5; filter:drop-shadow(0 2px 1px #000a);}
 .unit .ring{position:absolute; inset:5px; border-radius:50%; border:2px solid; opacity:.95;}
 .unit.f-player .ring{border-color:var(--player); background:radial-gradient(circle,#5aa0e022,transparent 70%);}
 .unit.f-enemy .ring{border-color:var(--enemy); background:radial-gradient(circle,#d8503a22,transparent 70%);}
@@ -91,40 +57,29 @@ h1,h2,h3,.disp{font-family:'Cinzel',serif; letter-spacing:.04em;}
 .unit .glyph{position:relative; z-index:2; transform:translateY(-1px);}
 .unit.acted{filter:grayscale(.8) brightness(.7);}
 .unit.sel .ring{box-shadow:0 0 0 2px var(--gold2),0 0 14px var(--gold2);}
-.unit .hpbar{position:absolute; bottom:2px; left:7px; right:7px; height:4px; background:#000a; border-radius:3px; overflow:hidden; z-index:3;}
+.unit .hpbar{position:absolute; bottom:3px; left:7px; right:7px; height:4px; background:#000a; border-radius:3px; overflow:hidden; z-index:3;}
 .unit .hpfill{height:100%; background:linear-gradient(90deg,#5f9a5a,#9ad36a);}
 .unit.f-enemy .hpfill,.unit.f-boss .hpfill{background:linear-gradient(90deg,#c0432b,#e8693f);}
 .unit.hurt{animation:shake .3s;}
 @keyframes shake{0%,100%{transform:translate(0,0);}25%{transform:translate(-3px,1px);}75%{transform:translate(3px,-1px);}}
-
-.float{position:absolute; z-index:30; font-family:'Cinzel'; font-weight:700; font-size:18px;
-  pointer-events:none; animation:floatup 1s ease-out forwards; text-shadow:0 1px 2px #000;}
+.float{position:absolute; z-index:30; font-family:'Cinzel'; font-weight:700; font-size:18px; pointer-events:none; animation:floatup 1s ease-out forwards; text-shadow:0 1px 2px #000;}
 .float.dmg{color:#ff8b6b;} .float.crit{color:#ffd84a; font-size:24px;} .float.heal{color:#8ad36a;} .float.miss{color:#bbb;}
-@keyframes floatup{0%{transform:translateY(0); opacity:0;}15%{opacity:1;}100%{transform:translateY(-34px); opacity:0;}}
-
-/* sidebar */
+@keyframes floatup{0%{transform:translateY(0);opacity:0;}15%{opacity:1;}100%{transform:translateY(-34px);opacity:0;}}
 .sidebar{display:flex; flex-direction:column; gap:12px;}
-.panel{border:1px solid var(--line); border-radius:10px; background:linear-gradient(#1c1f29,#171922);
-  box-shadow:inset 0 1px 0 #ffffff0a;}
-.panel h3{margin:0; padding:8px 12px; font-size:13px; color:var(--gold2); border-bottom:1px solid var(--line);
-  background:#ffffff06; letter-spacing:.08em; text-transform:uppercase;}
+.panel{border:1px solid var(--line); border-radius:10px; background:linear-gradient(#1c1f29,#171922); box-shadow:inset 0 1px 0 #ffffff0a;}
+.panel h3{margin:0; padding:8px 12px; font-size:13px; color:var(--gold2); border-bottom:1px solid var(--line); background:#ffffff06; letter-spacing:.08em; text-transform:uppercase;}
 .panel .body{padding:10px 12px;}
-.unitcard .name{font-family:'Cinzel'; font-size:16px; color:var(--ink);}
+.unitcard .name{font-family:'Cinzel'; font-size:16px;}
 .unitcard .cls{color:var(--muted); font-style:italic; font-size:12px; margin-bottom:6px;}
 .stats{display:grid; grid-template-columns:1fr 1fr; gap:2px 12px; font-size:13px;}
 .stats span b{color:var(--gold2); float:right;}
 .weap{margin-top:8px; font-size:12px; color:var(--muted); border-top:1px dashed var(--line); padding-top:6px;}
 .weap b{color:var(--ink);}
 .hint{color:var(--muted); font-size:12px; font-style:italic;}
-
-#log{height:150px; overflow:auto; font-size:12.5px; line-height:1.5;}
+#log{height:140px; overflow:auto; font-size:12.5px; line-height:1.5;}
 #log .l{padding:2px 0; border-bottom:1px dashed #ffffff0d;}
-#log .sys{color:var(--gold2);} #log .pl{color:var(--blue2);} #log .en{color:var(--ember2);} #log .nar{color:#c8b88a; font-style:italic;}
-
-/* buttons */
-.btn{font-family:'Cinzel'; font-size:13px; cursor:pointer; color:var(--ink);
-  background:linear-gradient(#2a2c38,#1e2029); border:1px solid var(--line); border-radius:7px;
-  padding:9px 14px; transition:.12s; letter-spacing:.03em;}
+#log .sys{color:var(--gold2);} #log .pl{color:var(--blue2,#7fb0d8);} #log .en{color:var(--ember2);} #log .nar{color:#c8b88a; font-style:italic;}
+.btn{font-family:'Cinzel'; font-size:13px; cursor:pointer; color:var(--ink); background:linear-gradient(#2a2c38,#1e2029); border:1px solid var(--line); border-radius:7px; padding:9px 14px; transition:.12s; letter-spacing:.03em;}
 .btn:hover{border-color:var(--gold); color:var(--gold2); box-shadow:0 0 12px #d8a24a22;}
 .btn:active{transform:translateY(1px);}
 .btn:disabled{opacity:.35; cursor:not-allowed;}
@@ -132,24 +87,13 @@ h1,h2,h3,.disp{font-family:'Cinzel',serif; letter-spacing:.04em;}
 .btn.primary:hover{color:#ffd0bf; border-color:var(--ember2); box-shadow:0 0 14px #c0432b55;}
 .btn.gold{background:linear-gradient(#6a4e16,#4a360f); border-color:var(--gold);}
 .controls{display:flex; gap:8px; flex-wrap:wrap;}
-
-/* action menu */
-#actionMenu{position:absolute; z-index:40; min-width:150px; display:none; flex-direction:column; gap:5px;
-  padding:8px; background:linear-gradient(#20232f,#171922f0); border:1px solid var(--gold);
-  border-radius:9px; box-shadow:0 10px 30px #000b;}
+#actionMenu{position:absolute; z-index:40; min-width:150px; display:none; flex-direction:column; gap:5px; padding:8px; background:linear-gradient(#20232f,#171922f0); border:1px solid var(--gold); border-radius:9px; box-shadow:0 10px 30px #000b;}
 #actionMenu .btn{text-align:left; padding:8px 12px;}
-
-/* forecast modal */
-.overlay{position:fixed; inset:0; background:#080910cc; backdrop-filter:blur(3px); z-index:200;
-  display:none; align-items:center; justify-content:center; padding:18px;}
+.overlay{position:fixed; inset:0; background:#080910cc; backdrop-filter:blur(3px); z-index:200; display:none; align-items:center; justify-content:center; padding:18px;}
 .overlay.show{display:flex;}
-.modal{max-width:640px; width:100%; background:
-   radial-gradient(600px 200px at 50% -20%,#2a2014,transparent),linear-gradient(#1a1c25,#12131a);
-   border:1px solid var(--gold); border-radius:14px; box-shadow:0 20px 60px #000c, inset 0 0 40px #00000060;
-   padding:22px 24px; animation:rise .3s ease;}
-@keyframes rise{from{transform:translateY(18px); opacity:0;}to{transform:translateY(0); opacity:1;}}
+.modal{max-width:660px; width:100%; max-height:92vh; overflow:auto; background:radial-gradient(600px 200px at 50% -20%,#2a2014,transparent),linear-gradient(#1a1c25,#12131a); border:1px solid var(--gold); border-radius:14px; box-shadow:0 20px 60px #000c,inset 0 0 40px #00000060; padding:22px 24px; animation:rise .3s ease;}
+@keyframes rise{from{transform:translateY(18px);opacity:0;}to{transform:translateY(0);opacity:1;}}
 .modal h2{margin:.1em 0 .3em; color:var(--gold2);}
-
 .forecast{display:grid; grid-template-columns:1fr 64px 1fr; gap:12px; align-items:center; margin:14px 0;}
 .fc-side{border:1px solid var(--line); border-radius:10px; padding:12px; background:#ffffff06;}
 .fc-side .nm{font-family:'Cinzel'; font-size:15px;}
@@ -158,20 +102,14 @@ h1,h2,h3,.disp{font-family:'Cinzel',serif; letter-spacing:.04em;}
 .fc-row{display:flex; justify-content:space-between; font-size:13px; padding:2px 0; border-top:1px dashed var(--line);}
 .fc-row b{color:var(--gold2);}
 .fc-vs{text-align:center; font-family:'Cinzel'; font-size:22px; color:var(--ember2);}
-.dead{color:#ff7a5a;}
 .adv{color:#8ad36a;} .dis{color:#e87a5a;}
-
-/* dialogue */
 .dlg-portrait{display:flex; gap:14px; align-items:center; margin-bottom:8px;}
-.dlg-face{width:62px; height:62px; flex:none; border-radius:12px; display:flex; align-items:center; justify-content:center;
-  font-size:34px; border:2px solid var(--gold); background:radial-gradient(circle,#2a2014,#12131a);}
+.dlg-face{width:62px; height:62px; flex:none; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:34px; border:2px solid var(--gold); background:radial-gradient(circle,#2a2014,#12131a);}
 .dlg-who{font-family:'Cinzel'; font-size:18px; color:var(--gold2);}
 .dlg-role{font-size:12px; color:var(--muted); font-style:italic;}
 .dlg-text{font-size:16.5px; line-height:1.6; min-height:60px; white-space:pre-wrap;}
 .dlg-text .em{color:var(--ember2);} .dlg-text .go{color:var(--gold2);}
 .center{text-align:center;}
-
-/* intro / end */
 .lore{font-size:15px; line-height:1.7; color:#d8d0bc;}
 .lore .em{color:var(--ember2);} .lore .go{color:var(--gold2);}
 .legend{display:flex; flex-wrap:wrap; gap:10px 18px; margin:14px 0; font-size:12.5px; color:var(--muted);}
@@ -180,943 +118,773 @@ h1,h2,h3,.disp{font-family:'Cinzel',serif; letter-spacing:.04em;}
 .endbig{font-family:'Cinzel'; font-size:34px; text-align:center;}
 .win{color:var(--gold2); text-shadow:0 0 24px #d8a24a55;}
 .lose{color:var(--ember2); text-shadow:0 0 24px #c0432b55;}
+/* creation */
+.classgrid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:12px 0;}
+@media(max-width:560px){ .classgrid{grid-template-columns:1fr;} }
+.classcard{border:1px solid var(--line); border-radius:10px; padding:12px; cursor:pointer; transition:.12s; background:#ffffff05;}
+.classcard:hover{border-color:var(--gold); box-shadow:0 0 14px #d8a24a22;}
+.classcard.sel{border-color:var(--gold2); box-shadow:0 0 0 1px var(--gold2),0 0 18px #d8a24a44; background:#d8a24a14;}
+.classcard .ct{font-family:'Cinzel'; font-size:16px; color:var(--gold2);}
+.classcard .glyphbig{font-size:30px; float:right; margin-top:-4px;}
+.classcard .pro{font-size:12.5px; color:#9ad36a; margin-top:6px;}
+.classcard .con{font-size:12.5px; color:#e8896b;}
+.classcard .st{font-size:11.5px; color:var(--muted); margin-top:6px; border-top:1px dashed var(--line); padding-top:5px;}
+.nameinput{width:100%; font-family:'Cinzel'; font-size:16px; padding:10px 12px; background:#0c0d12; color:var(--ink); border:1px solid var(--line); border-radius:8px; margin-top:4px;}
+.nameinput:focus{outline:none; border-color:var(--gold);}
+.upgrades{display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin:14px 0;}
+@media(max-width:560px){ .upgrades{grid-template-columns:1fr;} }
+.upcard{border:1px solid var(--line); border-radius:10px; padding:14px; cursor:pointer; text-align:center; transition:.12s; background:#ffffff05;}
+.upcard:hover{border-color:var(--gold2); box-shadow:0 0 16px #d8a24a33; transform:translateY(-2px);}
+.upcard .ut{font-family:'Cinzel'; color:var(--gold2); font-size:15px;}
+.upcard .ui{font-size:30px;}
 .kbd{font-family:'Cinzel'; background:#0006; border:1px solid var(--line); border-radius:5px; padding:1px 7px; font-size:12px;}
 </style>
 </head>
 <body>
 <div id="app">
   <div class="topbar">
-    <div class="title">
-      <h1>Les Cendres de Veyle</h1>
-      <span class="sub">Tactique &middot; Ordre de l'Aube</span>
-    </div>
-    <div class="turnpill" id="turnPill">Tour <b id="turnNum">1</b> &middot; <span id="phaseLbl">Phase des Joueurs</span></div>
+    <div class="title"><h1>Les Cendres de Veyle</h1><span class="sub" id="actSub">Prologue</span></div>
+    <div class="turnpill" id="turnPill">Tour <b id="turnNum">1</b> · <span id="phaseLbl">Phase des Joueurs</span></div>
   </div>
-
   <div class="main">
-    <div class="boardwrap">
-      <div id="board"></div>
-      <div id="actionMenu"></div>
-    </div>
-
+    <div class="boardwrap"><div id="board"></div><div id="actionMenu"></div></div>
     <div class="sidebar">
-      <div class="panel">
-        <h3>Inspection</h3>
-        <div class="body" id="inspect"><span class="hint">Touche une unité pour voir ses caractéristiques. Touche une case bleue pour te déplacer.</span></div>
-      </div>
-      <div class="panel">
-        <h3>Ordres</h3>
-        <div class="body controls">
-          <button class="btn primary" id="endTurnBtn">Fin du tour ▸</button>
-          <button class="btn" id="threatBtn">⚠ Zone de menace</button>
-          <button class="btn" id="helpBtn">? Aide</button>
-        </div>
-      </div>
-      <div class="panel">
-        <h3>Chronique de bataille</h3>
-        <div class="body"><div id="log"></div></div>
-      </div>
+      <div class="panel"><h3>Inspection</h3><div class="body" id="inspect"><span class="hint">Touche une unité pour voir ses caractéristiques.</span></div></div>
+      <div class="panel"><h3>Ordres</h3><div class="body controls">
+        <button class="btn primary" id="endTurnBtn">Fin du tour ▸</button>
+        <button class="btn" id="threatBtn">⚠ Menace</button>
+        <button class="btn" id="helpBtn">? Aide</button>
+      </div></div>
+      <div class="panel"><h3>Chronique</h3><div class="body"><div id="log"></div></div></div>
     </div>
   </div>
 </div>
 
-<!-- INTRO -->
-<div class="overlay show" id="introOv">
-  <div class="modal">
-    <h2 class="center">⚔ Les Cendres de Veyle ⚔</h2>
-    <p class="lore">
-      Il y a dix hivers, l'<span class="go">Ordre de l'Aube</span> gardait le royaume de Veyle. Son Grand-Maître,
-      <span class="em">Varkos</span>, était un héros — et le mentor d'un jeune écuyer nommé <span class="go">Kaell</span>.
-      <br><br>
-      Puis Varkos descendit dans les cryptes pour saisir la <span class="go">Lame d'Aurore</span>… et la relique le brisa.
-      Aujourd'hui on le nomme le <span class="em">Roi des Cendres</span>. Il règne sur le trône calciné de Veyle,
-      la lame scellée dans la pierre derrière lui.
-      <br><br>
-      Kaell, dernier chevalier de l'Aube, gravit la citadelle avec une poignée de compagnons.
-      Mettre fin à son maître. Reprendre la lame. Et comprendre, enfin, ce qui l'a dévoré.
-    </p>
-    <div class="legend">
-      <span><i class="sw" style="background:#2f4a2a"></i> Forêt : +esquive, +déf</span>
-      <span><i class="sw" style="background:#3a3550"></i> Fort : soigne &amp; protège</span>
-      <span><i class="sw" style="background:#1c3550"></i> Eau : infranchissable</span>
-      <span><i class="sw" style="background:#5a4318"></i> Trône : soigne le boss</span>
-      <span>🛡️🗡️🪓 = Triangle des armes</span>
-    </div>
-    <div class="center"><button class="btn gold" onclick="startGame()">Commencer la bataille ▸</button></div>
-  </div>
-</div>
+<div class="overlay show" id="introOv"><div class="modal">
+  <h2 class="center">⚔ Les Cendres de Veyle ⚔</h2>
+  <p class="lore">L'<span class="go">Ordre de l'Aube</span> gardait le royaume de Veyle. Son Grand-Maître, <span class="em">Varkos</span>, était un héros — et le mentor du jeune <span class="go">Kaell</span>.<br><br>
+  Puis Varkos descendit saisir la <span class="go">Lame d'Aurore</span>… et la relique le brisa. On le nomme désormais le <span class="em">Roi des Cendres</span>.<br><br>
+  Kaell et ses derniers compagnons montent à l'assaut du trône calciné. <span class="em">Mais leur ennemi les dépasse de loin.</span></p>
+  <p class="hint center">Prologue — cette bataille ne peut être gagnée. Tenez le plus longtemps possible, et voyez ce qui fut perdu.</p>
+  <div class="center"><button class="btn gold" id="introBtn">Commencer le prologue ▸</button></div>
+</div></div>
 
-<!-- FORECAST -->
-<div class="overlay" id="forecastOv">
-  <div class="modal" id="forecastModal"></div>
-</div>
+<div class="overlay" id="creationOv"><div class="modal">
+  <h2 class="center">Dix ans plus tard…</h2>
+  <p class="lore">Veyle n'est plus que cendres sous le règne du Roi. Mais une étincelle se lève — <span class="go">toi</span>.<br>Choisis ton nom et ton arme. Chaque voie a son prix.</p>
+  <label class="hint">Ton nom</label>
+  <input class="nameinput" id="nameInput" maxlength="14" placeholder="Cendre" value="Cendre">
+  <div class="classgrid" id="classGrid"></div>
+  <div class="center"><button class="btn gold" id="createBtn" disabled>Choisis une arme ▸</button></div>
+</div></div>
 
-<!-- DIALOGUE -->
-<div class="overlay" id="dlgOv">
-  <div class="modal">
-    <div class="dlg-portrait">
-      <div class="dlg-face" id="dlgFace">👤</div>
-      <div><div class="dlg-who" id="dlgWho">—</div><div class="dlg-role" id="dlgRole"></div></div>
-    </div>
-    <div class="dlg-text" id="dlgText"></div>
-    <div class="center" style="margin-top:14px"><button class="btn gold" id="dlgNext">Suite ▸</button></div>
-  </div>
-</div>
-
-<!-- HELP -->
-<div class="overlay" id="helpOv">
-  <div class="modal">
-    <h2>Comment jouer</h2>
-    <p class="lore" style="font-size:14px">
-      • Touche une de tes unités (cercle bleu) → ses cases de déplacement (<span class="go">bleu</span>) et de portée (<span class="em">rouge</span>) s'affichent.<br>
-      • Touche une case bleue pour t'y rendre, puis choisis : <b>Attaquer</b>, <b>Compétence</b>, <b>Objet</b>, <b>Soigner</b> ou <b>Attendre</b>.<br>
-      • Avant chaque combat, une <b>prévision</b> montre dégâts, % de toucher, critiques et si tu frappes deux fois (vitesse +4).<br>
-      • <b>Triangle</b> : épée &gt; hache &gt; lance &gt; épée (+toucher, +dégâts). Les arcs frappent à distance 2 sans riposte de mêlée.<br>
-      • Le bouton <b>Zone de menace</b> montre toutes les cases couvertes par l'ennemi. Indispensable.<br>
-      • <b>But</b> : vaincre <span class="em">Varkos</span>. Défaite si <span class="go">Kaell</span> tombe.
-    </p>
-    <div class="center"><button class="btn gold" onclick="hide('helpOv')">Compris ▸</button></div>
-  </div>
-</div>
-
-<!-- END -->
-<div class="overlay" id="endOv">
-  <div class="modal" id="endModal"></div>
-</div>
+<div class="overlay" id="forecastOv"><div class="modal" id="forecastModal"></div></div>
+<div class="overlay" id="dlgOv"><div class="modal">
+  <div class="dlg-portrait"><div class="dlg-face" id="dlgFace">👤</div><div><div class="dlg-who" id="dlgWho">—</div><div class="dlg-role" id="dlgRole"></div></div></div>
+  <div class="dlg-text" id="dlgText"></div>
+  <div class="center" style="margin-top:14px"><button class="btn gold" id="dlgNext">Suite ▸</button></div>
+</div></div>
+<div class="overlay" id="rewardOv"><div class="modal" id="rewardModal"></div></div>
+<div class="overlay" id="endOv"><div class="modal" id="endModal"></div></div>
+<div class="overlay" id="helpOv"><div class="modal">
+  <h2>Comment jouer</h2>
+  <p class="lore" style="font-size:14px">• Touche une de tes unités (cercle bleu) → cases de déplacement (<span class="go">bleu</span>) et de portée (<span class="em">rouge</span>).<br>
+  • Touche une case bleue pour bouger, puis choisis <b>Attaquer</b>, <b>Compétence</b>, <b>Objet</b> ou <b>Attendre</b>.<br>
+  • <b>Prévision</b> avant chaque combat : dégâts, précision, crit, double frappe (Vit +4).<br>
+  • <b>Triangle</b> : épée › hache › lance › épée. Arcs frappent à distance 2 sans riposte de mêlée. Magie vise la Résistance.<br>
+  • <b>Menace</b> affiche toutes les cases couvertes par l'ennemi.<br>
+  • <b>Objectif</b> en campagne : vaincre tous les ennemis. Si <b>ton héros</b> tombe, l'aventure s'achève.</p>
+  <div class="center"><button class="btn gold" id="helpClose">Compris ▸</button></div>
+</div></div>
 
 <script>
-/* ============================================================
-   LES CENDRES DE VEYLE — moteur tactique
-   ============================================================ */
-const W=14, H=11;
+const W=14,H=11;
 const $=(id)=>document.getElementById(id);
 const sleep=(ms)=>new Promise(r=>setTimeout(r,ms));
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const key=(x,y)=>x+","+y;
+const rnd=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const pick=(arr)=>arr[Math.floor(Math.random()*arr.length)];
 
-/* ---------- TERRAIN ---------- */
-// def bonus, avoid bonus, moveCost, passable, healPct
 const TERR={
-  plain:{cls:'t-plain', def:0, avo:0, cost:1, pass:true},
-  forest:{cls:'t-forest', def:1, avo:25, cost:2, pass:true, ico:'🌲'},
-  mount:{cls:'t-mount', def:2, avo:35, cost:3, pass:true, ico:'⛰'},
-  fort:{cls:'t-fort', def:1, avo:15, cost:1, pass:true, heal:0.30, ico:'🏰'},
-  water:{cls:'t-water', def:0, avo:0, cost:99, pass:false},
-  wall:{cls:'t-wall', def:0, avo:0, cost:99, pass:false},
-  throne:{cls:'t-throne', def:3, avo:20, cost:1, pass:true, heal:0.25, ico:'♛'},
+  plain:{cls:'t-plain',def:0,avo:0,cost:1,pass:true},
+  forest:{cls:'t-forest',def:1,avo:25,cost:2,pass:true,ico:'🌲'},
+  mount:{cls:'t-mount',def:2,avo:35,cost:3,pass:true,ico:'⛰'},
+  fort:{cls:'t-fort',def:1,avo:15,cost:1,pass:true,heal:0.30,ico:'🏰'},
+  water:{cls:'t-water',def:0,avo:0,cost:99,pass:false},
+  wall:{cls:'t-wall',def:0,avo:0,cost:99,pass:false},
+  throne:{cls:'t-throne',def:3,avo:20,cost:1,pass:true,heal:0.25,ico:'♛'},
 };
-let map=[]; // map[y][x] = terrain key
-function buildMap(){
-  map=Array.from({length:H},()=>Array(W).fill('plain'));
-  const set=(x,y,t)=>{ if(x>=0&&x<W&&y>=0&&y<H) map[y][x]=t; };
-  // top fortress walls
-  for(const x of [0,1,12,13]) set(x,0,'wall');
-  set(0,1,'wall'); set(13,1,'wall');
-  // throne
-  set(7,1,'throne');
-  // forts flanking throne (enemy heal points)
-  set(5,2,'fort'); set(9,2,'fort');
-  // forests for cover
-  [[3,1],[10,1],[2,3],[11,3],[4,4],[9,4],[3,7],[10,7],[5,8],[8,8],[2,9],[11,9]].forEach(p=>set(p[0],p[1],'forest'));
-  // mountains
-  [[1,4],[12,4],[6,3],[7,3]].forEach(p=>set(p[0],p[1],'mount'));
-  // river across middle (rows 5-6) with bridges at x=4 and x=9
-  for(let x=2;x<=11;x++){ set(x,5,'water'); set(x,6,'water'); }
-  set(4,5,'plain'); set(4,6,'plain'); set(9,5,'plain'); set(9,6,'plain'); // bridges
-  set(2,5,'plain'); set(11,6,'plain'); // shore gaps
-  // player forts near bottom
-  set(1,8,'fort'); set(12,8,'fort');
-  // bottom walls
-  for(const x of [0,1,12,13]) set(x,10,'wall');
-}
+let map=[];
 
-/* ---------- WEAPONS ---------- */
-function weapon(name,type,might,hit,crit,rmin,rmax,extra){
-  return Object.assign({name,type,might,hit,crit,rmin,rmax},extra||{});
-}
-const WEAPONS={
-  laurore: weapon("Lame brisée d'Aurore",'sword',7,90,15,1,1),
-  lance: weapon("Lance d'acier",'lance',8,80,5,1,1),
-  axe: weapon("Hache de guerre",'axe',10,72,8,1,1),
-  bow: weapon("Arc long",'bow',7,85,10,2,2,{noCounterAt1:true}),
-  tome: weapon("Grimoire de feu",'tome',8,88,6,1,2,{magic:true}),
-  staff: weapon("Bâton de soin",'staff',0,100,0,1,1,{heal:true}),
-  // enemies
-  e_lance: weapon("Lance",'lance',6,78,3,1,1),
-  e_axe: weapon("Hache rouillée",'axe',8,70,6,1,1),
-  e_bow: weapon("Arc court",'bow',6,82,8,2,2,{noCounterAt1:true}),
-  e_tome: weapon("Sort d'ombre",'tome',7,84,5,1,2,{magic:true}),
-  boss: weapon("Brûlure des Cendres",'tome',11,90,12,1,2,{magic:true}),
+function weapon(name,type,might,hit,crit,rmin,rmax,extra){return Object.assign({name,type,might,hit,crit,rmin,rmax},extra||{});}
+const WP={
+  laurore:weapon("Lame d'Aurore",'sword',7,90,15,1,1),
+  lance:weapon("Lance d'acier",'lance',8,80,5,1,1),
+  axe:weapon("Hache de guerre",'axe',10,72,8,1,1),
+  bow:weapon("Arc long",'bow',7,85,10,2,2,{noCounterAt1:true}),
+  tome:weapon("Grimoire de feu",'tome',8,88,6,1,2,{magic:true}),
+  staff:weapon("Bâton de soin",'staff',0,100,0,1,1,{heal:true}),
+  e_sword:weapon("Épée",'sword',6,82,6,1,1),
+  e_lance:weapon("Lance",'lance',6,78,3,1,1),
+  e_axe:weapon("Hache rouillée",'axe',8,70,6,1,1),
+  e_bow:weapon("Arc court",'bow',6,82,8,2,2,{noCounterAt1:true}),
+  e_tome:weapon("Sort d'ombre",'tome',7,84,5,1,2,{magic:true}),
+  boss:weapon("Brûlure des Cendres",'tome',12,92,12,1,2,{magic:true}),
 };
-function beats(a,b){ return (a==='sword'&&b==='axe')||(a==='axe'&&b==='lance')||(a==='lance'&&b==='sword'); }
-function triangle(att,def){ if(beats(att,def))return 1; if(beats(def,att))return -1; return 0; }
+function beats(a,b){return (a==='sword'&&b==='axe')||(a==='axe'&&b==='lance')||(a==='lance'&&b==='sword');}
+function triangle(a,b){if(beats(a,b))return 1;if(beats(b,a))return -1;return 0;}
 
-/* ---------- UNITS ---------- */
-let units=[], uid=0;
-function mk(o){ o.id=uid++; o.alive=true; o.hp=o.maxhp; o.acted=false; o.skillCd=0; o.buffDef=0; o.buffTurns=0; o.empower=false; return o; }
+/* PLAYER CLASSES for creation */
+const CLASSES=[
+  {id:'sword',name:'Lame',glyph:'🗡️',cls:'Épéiste',weapon:WP.laurore,skill:'Vaillance',
+   pros:'Polyvalent · crit élevé · bat la hache',cons:'Portée 1 · dégâts moyens',
+   base:{maxhp:28,atk:12,def:9,res:6,skill:11,speed:11,luck:9,mov:6}},
+  {id:'lance',name:'Lance',glyph:'🛡️',cls:'Garde',weapon:WP.lance,skill:'Rempart',
+   pros:'Robuste · grosse déf · bat l\'épée',cons:'Lent (peu de doubles) · portée 1',
+   base:{maxhp:34,atk:11,def:13,res:5,skill:7,speed:6,luck:7,mov:5}},
+  {id:'axe',name:'Hache',glyph:'🪓',cls:'Berserker',weapon:WP.axe,skill:'Fureur',
+   pros:'Dégâts lourds · PV élevés',cons:'Imprécis · battu par l\'épée',
+   base:{maxhp:36,atk:14,def:8,res:3,skill:6,speed:7,luck:5,mov:6}},
+  {id:'bow',name:'Arc',glyph:'🏹',cls:'Rôdeur',weapon:WP.bow,skill:'Tir perçant',
+   pros:'Frappe à distance 2 · esquive · rapide',cons:'Fragile · pas de riposte au corps à corps',
+   base:{maxhp:24,atk:12,def:6,res:6,skill:13,speed:13,luck:10,mov:6}},
+  {id:'tome',name:'Magie',glyph:'🔮',cls:'Mage',weapon:WP.tome,skill:'Déflagration',
+   pros:'Dégâts magiques (vise la Rés) · portée 1-2',cons:'Très fragile · PV bas',
+   base:{maxhp:22,atk:14,def:4,res:9,skill:11,speed:9,luck:7,mov:5}},
+];
+const SKILL_DESC={
+  Vaillance:'Sa prochaine attaque ce tour est critique garantie et double.',
+  Rempart:'+6 Déf à lui et +3 aux alliés adjacents (2 tours).',
+  Fureur:'Sa prochaine attaque gagne +6 de puissance.',
+  'Tir perçant':'Sa prochaine attaque ignore la moitié de la déf adverse.',
+  Déflagration:'Frappe magique de zone 3×3 — vise une case. Sans riposte.',
+};
 
-function setupUnits(){
-  units=[];
-  // ---- PLAYER ----
-  units.push(mk({faction:'player',name:'Kaell',cls:'Chevalier de l\'Aube',glyph:'🗡️',
-    maxhp:30, atk:13, def:9, res:6, skill:12, speed:11, luck:9, mov:6,
-    weapon:WEAPONS.laurore, items:[{name:'Élixir',heal:9999}],
-    skill_name:'Vaillance', skill_desc:'Sa prochaine attaque ce tour est critique garantie et double.', skill_cd:3,
-    portrait:'🗡️', isLord:true}));
-  units.push(mk({faction:'player',name:'Brienne',cls:'Garde de fer (lance)',glyph:'🛡️',
-    maxhp:34, atk:11, def:13, res:4, skill:7, speed:5, luck:6, mov:4,
-    weapon:WEAPONS.lance, items:[{name:'Vulnéraire',heal:15}],
-    skill_name:'Rempart', skill_desc:'+6 Déf à elle-même et +3 aux alliés adjacents jusqu\'à son prochain tour.', skill_cd:3,
-    portrait:'🛡️'}));
-  units.push(mk({faction:'player',name:'Sylas',cls:'Mage de feu',glyph:'🔮',
-    maxhp:22, atk:14, def:4, res:9, skill:11, speed:9, luck:7, mov:5,
-    weapon:WEAPONS.tome, items:[{name:'Vulnéraire',heal:15}],
-    skill_name:'Déflagration', skill_desc:'Frappe magique de zone (3×3) — vise une case, touche tous les ennemis autour. Sans riposte.', skill_cd:4,
-    portrait:'🔮'}));
-  units.push(mk({faction:'player',name:'Wren',cls:'Archère',glyph:'🏹',
-    maxhp:24, atk:12, def:6, res:6, skill:13, speed:13, luck:10, mov:6,
-    weapon:WEAPONS.bow, items:[{name:'Vulnéraire',heal:15}],
-    skill_name:'Tir perçant', skill_desc:'Sa prochaine attaque ignore la déf du terrain et la moitié de la déf adverse.', skill_cd:3,
-    portrait:'🏹'}));
-  units.push(mk({faction:'player',name:'Aldric',cls:'Clerc',glyph:'✚',
-    maxhp:24, atk:6, def:6, res:10, skill:8, speed:8, luck:11, mov:5,
-    weapon:WEAPONS.staff, items:[{name:'Vulnéraire',heal:15}],
-    skill_name:'Lumière diffuse', skill_desc:'Soigne de 14 PV tous les alliés adjacents.', skill_cd:3,
-    portrait:'✚', healer:true}));
-  // start positions (bottom)
-  const pstart=[[5,9],[7,9],[4,9],[8,9],[6,9]];
-  units.forEach((u,i)=>{ if(u.faction==='player'){ u.x=pstart[i][0]; u.y=pstart[i][1]; }});
+let units=[],uid=0;
+function mk(o){o.id=uid++;o.alive=true;o.hp=o.maxhp;o.acted=false;o.skillCd=0;o.buffDef=0;o.buffTurns=0;return o;}
+function at(x,y){return units.find(u=>u.alive&&u.x===x&&u.y===y);}
+function passableTerr(x,y){return x>=0&&x<W&&y>=0&&y<H&&TERR[map[y][x]].pass;}
+function sameSide(a,b){const s=f=>f==='player'?'p':'e';return s(a.faction)===s(b.faction);}
+function allies(u){return units.filter(v=>v.alive&&sameSide(u,v));}
+function foes(u){return units.filter(v=>v.alive&&!sameSide(u,v));}
+function isFoeUnit(u){return u.faction==='enemy'||u.faction==='boss';}
+function man(ax,ay,bx,by){return Math.abs(ax-bx)+Math.abs(ay-by);}
 
-  // ---- ENEMIES ----
-  const E=(name,glyph,stats,wpn,x,y)=>mk(Object.assign({faction:'enemy',name,cls:'Soldat des Cendres',glyph,
-    weapon:wpn, items:[], ai:'aggressive'},stats,{x,y}));
-  units.push(E('Lancier','🗡️',{maxhp:26,atk:11,def:9,res:3,skill:6,speed:7,luck:3,mov:5},WEAPONS.e_lance,6,7));
-  units.push(E('Lancier','🗡️',{maxhp:26,atk:11,def:9,res:3,skill:6,speed:7,luck:3,mov:5},WEAPONS.e_lance,8,7));
-  units.push(E('Brigand','🪓',{maxhp:30,atk:13,def:7,res:2,skill:5,speed:6,luck:2,mov:6},WEAPONS.e_axe,4,4));
-  units.push(E('Brigand','🪓',{maxhp:30,atk:13,def:7,res:2,skill:5,speed:6,luck:2,mov:6},WEAPONS.e_axe,9,4));
-  units.push(E('Archer','🏹',{maxhp:22,atk:11,def:6,res:5,skill:10,speed:10,luck:4,mov:5},WEAPONS.e_bow,5,3));
-  units.push(E('Mage noir','🔮',{maxhp:20,atk:13,def:4,res:8,skill:9,speed:8,luck:4,mov:5},WEAPONS.e_tome,9,3));
-  // ---- BOSS ----
-  units.push(mk({faction:'boss',name:'Varkos',cls:'Le Roi des Cendres',glyph:'👑',
-    maxhp:48, atk:17, def:12, res:14, skill:11, speed:9, luck:8, mov:0,
-    weapon:WEAPONS.boss, items:[], ai:'boss', boss:true, special_cd:0, hasSpoken:false,
-    portrait:'👑', x:7, y:1}));
-}
-
-function at(x,y){ return units.find(u=>u.alive&&u.x===x&&u.y===y); }
-function passableTerr(x,y){ return x>=0&&x<W&&y>=0&&y<H&&TERR[map[y][x]].pass; }
-function allies(u){ return units.filter(v=>v.alive&&sameSide(u,v)); }
-function foes(u){ return units.filter(v=>v.alive&&!sameSide(u,v)); }
-function sameSide(a,b){ const s=(f)=>f==='player'?'p':'e'; return s(a.faction)===s(b.faction); }
-function isFoeUnit(u){ return u.faction==='enemy'||u.faction==='boss'; }
-
-/* ---------- PATHFINDING (Dijkstra + ZoC) ---------- */
+/* ---------- PATHFINDING ---------- */
 function reachable(u){
-  // returns {dist:Map, prev:Map}
-  const dist=new Map(), prev=new Map();
-  const zoc=new Set();
-  foes(u).forEach(f=>{ [[0,1],[0,-1],[1,0],[-1,0]].forEach(d=>{ zoc.add(key(f.x+d[0],f.y+d[1])); }); });
-  const start=key(u.x,u.y);
-  dist.set(start,0);
+  const dist=new Map(),prev=new Map(),zoc=new Set();
+  foes(u).forEach(f=>{[[0,1],[0,-1],[1,0],[-1,0]].forEach(d=>zoc.add(key(f.x+d[0],f.y+d[1])));});
+  const start=key(u.x,u.y); dist.set(start,0);
   const pq=[[0,u.x,u.y]];
   while(pq.length){
-    pq.sort((a,b)=>a[0]-b[0]);
-    const [c,x,y]=pq.shift();
-    if(c>dist.get(key(x,y))) continue;
-    // ZoC: cannot expand from a tile adjacent to an enemy (movement halts) — except start
-    if(key(x,y)!==start && zoc.has(key(x,y))) continue;
+    pq.sort((a,b)=>a[0]-b[0]); const [c,x,y]=pq.shift();
+    if(c>dist.get(key(x,y)))continue;
+    if(key(x,y)!==start&&zoc.has(key(x,y)))continue;
     for(const d of [[0,1],[0,-1],[1,0],[-1,0]]){
-      const nx=x+d[0], ny=y+d[1];
-      if(!passableTerr(nx,ny)) continue;
-      const occ=at(nx,ny);
-      if(occ && !sameSide(u,occ)) continue; // can't pass through enemy
-      const nc=c+TERR[map[ny][nx]].cost;
-      if(nc>u.mov) continue;
-      if(!dist.has(key(nx,ny)) || nc<dist.get(key(nx,ny))){
-        dist.set(key(nx,ny),nc); prev.set(key(nx,ny),key(x,y)); pq.push([nc,nx,ny]);
-      }
+      const nx=x+d[0],ny=y+d[1];
+      if(!passableTerr(nx,ny))continue;
+      const occ=at(nx,ny); if(occ&&!sameSide(u,occ))continue;
+      const nc=c+TERR[map[ny][nx]].cost; if(nc>u.mov)continue;
+      if(!dist.has(key(nx,ny))||nc<dist.get(key(nx,ny))){dist.set(key(nx,ny),nc);prev.set(key(nx,ny),key(x,y));pq.push([nc,nx,ny]);}
     }
   }
   return {dist,prev};
 }
-function destinations(u,dist){
-  const out=[];
-  dist.forEach((c,k)=>{ const [x,y]=k.split(',').map(Number); const occ=at(x,y);
-    if(!occ || occ.id===u.id) out.push([x,y,c]); });
-  return out;
-}
-function pathTo(prev,u,tx,ty){
-  const path=[]; let cur=key(tx,ty); const start=key(u.x,u.y);
-  while(cur && cur!==start){ const [x,y]=cur.split(',').map(Number); path.unshift([x,y]); cur=prev.get(cur); }
-  return path;
-}
-function man(ax,ay,bx,by){ return Math.abs(ax-bx)+Math.abs(ay-by); }
-
-/* attack-tiles from a set of standing positions */
-function attackTilesFrom(u,standTiles){
-  const set=new Set();
-  const r1=u.weapon.rmin, r2=u.weapon.rmax;
-  standTiles.forEach(([sx,sy])=>{
-    for(let dx=-r2;dx<=r2;dx++)for(let dy=-r2;dy<=r2;dy++){
-      const d=Math.abs(dx)+Math.abs(dy); if(d<r1||d>r2) continue;
-      const tx=sx+dx, ty=sy+dy; if(tx<0||tx>=W||ty<0||ty>=H) continue;
-      set.add(key(tx,ty));
-    }
-  });
-  return set;
-}
+function destinations(u,dist){const out=[];dist.forEach((c,k)=>{const [x,y]=k.split(',').map(Number);const occ=at(x,y);if(!occ||occ.id===u.id)out.push([x,y,c]);});return out;}
+function pathTo(prev,u,tx,ty){const path=[];let cur=key(tx,ty);const start=key(u.x,u.y);while(cur&&cur!==start){const [x,y]=cur.split(',').map(Number);path.unshift([x,y]);cur=prev.get(cur);}return path;}
+function attackTilesFrom(u,stand){const set=new Set();const r1=u.weapon.rmin,r2=u.weapon.rmax;stand.forEach(([sx,sy])=>{for(let dx=-r2;dx<=r2;dx++)for(let dy=-r2;dy<=r2;dy++){const d=Math.abs(dx)+Math.abs(dy);if(d<r1||d>r2)continue;const tx=sx+dx,ty=sy+dy;if(tx<0||tx>=W||ty<0||ty>=H)continue;set.add(key(tx,ty));}});return set;}
 
 /* ---------- COMBAT MATH ---------- */
-function effDef(att,def){
-  const t=TERR[map[def.y][def.x]];
-  const base=att.weapon.magic? def.res : def.def;
-  return base + (att.weapon.magic?0:t.def) + def.buffDef;
-}
-function computeHit(att,def,opts={}){
-  const t=TERR[map[def.y][def.x]];
-  const tri=triangle(att.weapon.type,def.weapon.type);
-  const hitRate=att.weapon.hit + att.skill*2 + att.luck + tri*15;
-  const avoid=def.speed*2 + def.luck + t.avo;
-  return clamp(Math.round(hitRate-avoid),0,100);
-}
-function computeDmg(att,def,opts={}){
-  const tri=triangle(att.weapon.type,def.weapon.type);
-  let d=effDef(att,def);
-  if(opts.pierce){ d=Math.floor(d/2); } // tir perçant: ignore terrain (already partly) + half def
-  let raw=att.atk + att.weapon.might + tri*1 - d;
-  return Math.max(0,raw);
-}
-function computeCrit(att,def,opts={}){
-  if(opts.forceCrit) return 100;
-  return clamp(att.weapon.crit + att.skill - def.luck,0,100);
-}
-function doubles(att,def){ return att.speed>=def.speed+4; }
-function inRange(att,dist){ return dist>=att.weapon.rmin && dist<=att.weapon.rmax; }
-function canCounter(def,att,dist){
-  if(def.weapon.heal) return false;
-  if(!inRange(def,dist)) return false;
-  if(def.weapon.noCounterAt1 && dist===1) return false; // bow can't counter adjacent
-  return true;
-}
-
-function forecast(att,def,attX,attY,opts={}){
-  const dist=man(attX,attY,def.x,def.y);
-  const aDmg=computeDmg(att,def,opts), aHit=computeHit(att,def,opts), aCrit=computeCrit(att,def,opts);
-  const aDouble=doubles(att,def);
-  const counter=canCounter(def,att,dist);
-  const dDmg=counter?computeDmg(def,att):0, dHit=counter?computeHit(def,att):0, dCrit=counter?computeCrit(def,att):0;
-  const dDouble=counter&&doubles(def,att);
-  return {dist,aDmg,aHit,aCrit,aDouble,counter,dDmg,dHit,dCrit,dDouble};
-}
+function effDef(att,def){const t=TERR[map[def.y][def.x]];const base=att.weapon.magic?def.res:def.def;return base+(att.weapon.magic?0:t.def)+def.buffDef;}
+function computeHit(att,def){const t=TERR[map[def.y][def.x]];const tri=triangle(att.weapon.type,def.weapon.type);return clamp(Math.round(att.weapon.hit+att.skill*2+att.luck+tri*15-(def.speed*2+def.luck+t.avo)),0,100);}
+function computeDmg(att,def,opts={}){const tri=triangle(att.weapon.type,def.weapon.type);let d=effDef(att,def);if(opts.pierce)d=Math.floor(d/2);let bonus=opts.might||0;return Math.max(0,att.atk+att.weapon.might+bonus+tri*1-d);}
+function computeCrit(att,def,opts={}){if(opts.forceCrit)return 100;return clamp(att.weapon.crit+att.skill-def.luck,0,100);}
+function doubles(att,def){return att.speed>=def.speed+4;}
+function inRange(att,dist){return dist>=att.weapon.rmin&&dist<=att.weapon.rmax;}
+function canCounter(def,att,dist){if(def.weapon.heal)return false;if(!inRange(def,dist))return false;if(def.weapon.noCounterAt1&&dist===1)return false;return true;}
+function forecast(att,def,ax,ay,opts={}){const dist=man(ax,ay,def.x,def.y);const aDmg=computeDmg(att,def,opts),aHit=computeHit(att,def),aCrit=computeCrit(att,def,opts),aDouble=doubles(att,def);const counter=canCounter(def,att,dist);return {dist,aDmg,aHit,aCrit,aDouble,counter,dDmg:counter?computeDmg(def,att):0,dHit:counter?computeHit(def,att):0,dCrit:counter?computeCrit(def,att):0,dDouble:counter&&doubles(def,att)};}
 
 /* ---------- RENDER ---------- */
-const board=$('board');
-let cells=[];
+const board=$('board');let cells=[];
 function renderBoard(){
-  board.style.gridTemplateColumns=`repeat(${W},var(--cs,46px))`;
-  board.innerHTML=''; cells=[];
-  for(let y=0;y<H;y++){ const row=[];
-    for(let x=0;x<W;x++){
-      const c=document.createElement('div');
-      const t=TERR[map[y][x]];
-      c.className='cell '+t.cls;
-      if(t.ico){ const i=document.createElement('span'); i.className='terr-ico'; i.textContent=t.ico; c.appendChild(i); }
-      c.dataset.x=x; c.dataset.y=y;
-      c.addEventListener('click',()=>onCellClick(x,y));
-      board.appendChild(c); row.push(c);
-    }
-    cells.push(row);
-  }
+  board.style.gridTemplateColumns=`repeat(${W},var(--cs))`;
+  board.innerHTML='';cells=[];
+  for(let y=0;y<H;y++){const row=[];for(let x=0;x<W;x++){
+    const c=document.createElement('div');const t=TERR[map[y][x]];c.className='cell '+t.cls;
+    if(t.ico){const i=document.createElement('span');i.className='terr-ico';i.textContent=t.ico;c.appendChild(i);}
+    c.dataset.x=x;c.dataset.y=y;c.addEventListener('click',()=>onCellClick(x,y));
+    board.appendChild(c);row.push(c);
+  }cells.push(row);}
 }
-function cellPx(){ const c=cells[0][0]; return c.getBoundingClientRect().width; }
 function renderUnits(){
   document.querySelectorAll('.unit').forEach(e=>e.remove());
   units.filter(u=>u.alive).forEach(u=>{
-    const c=cells[u.y] && cells[u.y][u.x]; if(!c) return;
+    const c=cells[u.y]&&cells[u.y][u.x];if(!c)return;
     const el=document.createElement('div');
     el.className='unit f-'+(u.faction==='player'?'player':u.faction==='boss'?'boss':'enemy')+(u.acted?' acted':'')+(selected&&selected.id===u.id?' sel':'');
     el.id='unit-'+u.id;
-    el.style.left=c.offsetLeft+'px'; el.style.top=c.offsetTop+'px';
-    el.style.width=c.offsetWidth+'px'; el.style.height=c.offsetHeight+'px';
-    el.innerHTML=`<div class="ring"></div><div class="glyph">${u.glyph}</div>
-      <div class="hpbar"><div class="hpfill" style="width:${Math.max(0,u.hp/u.maxhp*100)}%"></div></div>`;
+    el.style.left=c.offsetLeft+'px';el.style.top=c.offsetTop+'px';el.style.width=c.offsetWidth+'px';el.style.height=c.offsetHeight+'px';
+    el.innerHTML=`<div class="ring"></div><div class="glyph">${u.glyph}</div><div class="hpbar"><div class="hpfill" style="width:${Math.max(0,u.hp/u.maxhp*100)}%"></div></div>`;
     board.appendChild(el);
   });
 }
-function clearHighlights(){ cells.flat().forEach(c=>{ c.classList.remove('move','atk','skill','path','tgt'); }); }
-function clearThreat(){ cells.flat().forEach(c=>c.classList.remove('threat')); }
-function showThreat(on){
-  clearThreat(); if(!on) return;
-  const set=new Set();
-  foes({faction:'player'}).filter(f=>f.alive).forEach(f=>{
-    if(f.mov===0){ // boss: just weapon range from spot
-      attackTilesFrom(f,[[f.x,f.y]]).forEach(k=>set.add(k));
-    } else {
-      const {dist}=reachable(f);
-      const stand=destinations(f,dist).map(d=>[d[0],d[1]]); stand.push([f.x,f.y]);
-      attackTilesFrom(f,stand).forEach(k=>set.add(k));
-    }
-  });
-  set.forEach(k=>{ const [x,y]=k.split(',').map(Number); if(cells[y]&&cells[y][x]) cells[y][x].classList.add('threat'); });
-}
+function clearHighlights(){cells.flat().forEach(c=>c.classList.remove('move','atk','skill','tgt'));}
+function clearThreat(){cells.flat().forEach(c=>c.classList.remove('threat'));}
+function showThreat(on){clearThreat();if(!on)return;const set=new Set();
+  units.filter(u=>u.alive&&isFoeUnit(u)).forEach(f=>{let stand;if(f.mov===0){stand=[[f.x,f.y]];}else{const {dist}=reachable(f);stand=destinations(f,dist).map(d=>[d[0],d[1]]);stand.push([f.x,f.y]);}attackTilesFrom(f,stand).forEach(k=>set.add(k));});
+  set.forEach(k=>{const [x,y]=k.split(',').map(Number);if(cells[y]&&cells[y][x])cells[y][x].classList.add('threat');});}
 
 /* ---------- LOG & DIALOGUE ---------- */
-function log(msg,cls='l'){ const d=document.createElement('div'); d.className='l '+cls; d.innerHTML=msg;
-  $('log').appendChild(d); $('log').scrollTop=$('log').scrollHeight; }
-let dlgQueue=[], dlgCb=null;
-function speak(lines,cb){ dlgQueue=lines.slice(); dlgCb=cb||null; nextDlg(); $('dlgOv').classList.add('show'); }
-function nextDlg(){
-  if(dlgQueue.length===0){ $('dlgOv').classList.remove('show'); const cb=dlgCb; dlgCb=null; if(cb)cb(); return; }
-  const l=dlgQueue.shift();
-  $('dlgFace').textContent=l.face||'👤';
-  $('dlgWho').textContent=l.who||'';
-  $('dlgRole').textContent=l.role||'';
-  $('dlgText').innerHTML=l.text||'';
-}
+function log(m,cls='l'){const d=document.createElement('div');d.className='l '+cls;d.innerHTML=m;$('log').appendChild(d);$('log').scrollTop=$('log').scrollHeight;}
+let dlgQueue=[],dlgCb=null;
+function speak(lines,cb){dlgQueue=lines.slice();dlgCb=cb||null;nextDlg();$('dlgOv').classList.add('show');}
+function nextDlg(){if(dlgQueue.length===0){$('dlgOv').classList.remove('show');const cb=dlgCb;dlgCb=null;if(cb)cb();return;}const l=dlgQueue.shift();$('dlgFace').textContent=l.face||'👤';$('dlgWho').textContent=l.who||'';$('dlgRole').textContent=l.role||'';$('dlgText').innerHTML=l.text||'';}
 $('dlgNext').addEventListener('click',nextDlg);
 
-/* ---------- INSPECT PANEL ---------- */
+/* ---------- INSPECT ---------- */
+function frType(t){return {sword:'épée',lance:'lance',axe:'hache',bow:'arc',tome:'magie',staff:'soin'}[t]||t;}
+function terrName(t){return {plain:'Plaine',forest:'Forêt',mount:'Montagne',fort:'Fort',water:'Eau',wall:'Mur',throne:'Trône'}[t];}
 function inspect(u){
-  if(!u){ $('inspect').innerHTML='<span class="hint">Touche une unité pour voir ses caractéristiques.</span>'; return; }
-  const tri=u.weapon.type;
+  if(!u){$('inspect').innerHTML='<span class="hint">Touche une unité pour voir ses caractéristiques.</span>';return;}
   const t=TERR[map[u.y][u.x]];
-  const terrLine=(t.def||t.avo||t.heal)?`<div class="weap">Terrain : <b>${terrName(map[u.y][u.x])}</b> ${t.def?`+${t.def} déf `:''}${t.avo?`+${t.avo} esq `:''}${t.heal?`soin ${Math.round(t.heal*100)}%`:''}</div>`:'';
-  const sk=u.skill_name?`<div class="weap" title="${u.skill_desc}">Compétence : <b>${u.skill_name}</b> ${u.skillCd>0?`(recharge ${u.skillCd})`:'<span class="adv">prête</span>'}<br><span class="hint">${u.skill_desc}</span></div>`:'';
-  $('inspect').innerHTML=`
-    <div class="unitcard">
-      <div class="name">${u.glyph} ${u.name}</div>
-      <div class="cls">${u.cls} &middot; ${u.faction==='player'?'Allié':'Ennemi'}</div>
-      <div class="stats">
-        <span>PV<b>${u.hp}/${u.maxhp}</b></span><span>Mvt<b>${u.mov}</b></span>
-        <span>Atq<b>${u.atk}</b></span><span>Déf<b>${u.def}${u.buffDef?'+'+u.buffDef:''}</b></span>
-        <span>Vit<b>${u.speed}</b></span><span>Rés<b>${u.res}</b></span>
-        <span>Hab<b>${u.skill}</b></span><span>Chance<b>${u.luck}</b></span>
-      </div>
-      <div class="weap">Arme : <b>${u.weapon.name}</b> (${frType(u.weapon.type)})<br>
-        Puis ${u.weapon.might} &middot; Préc ${u.weapon.hit} &middot; Crit ${u.weapon.crit} &middot; Portée ${u.weapon.rmin}${u.weapon.rmax>u.weapon.rmin?'–'+u.weapon.rmax:''}</div>
-      ${terrLine}${sk}
-    </div>`;
+  const terrLine=(t.def||t.avo||t.heal)?`<div class="weap">Terrain : <b>${terrName(map[u.y][u.x])}</b> ${t.def?`+${t.def} déf `:''}${t.avo?`+${t.avo} esq `:''}${t.heal?`soin`:''}</div>`:'';
+  const sk=u.skill_name?`<div class="weap">Compétence : <b>${u.skill_name}</b> ${u.skillCd>0?`(recharge ${u.skillCd})`:'<span class="adv">prête</span>'}<br><span class="hint">${u.skill_desc}</span></div>`:'';
+  $('inspect').innerHTML=`<div class="unitcard"><div class="name">${u.glyph} ${u.name}${u.lvl?` <span class="hint">Nv.${u.lvl}</span>`:''}</div>
+    <div class="cls">${u.cls} · ${u.faction==='player'?'Allié':'Ennemi'}</div>
+    <div class="stats"><span>PV<b>${u.hp}/${u.maxhp}</b></span><span>Mvt<b>${u.mov}</b></span>
+    <span>Atq<b>${u.atk}</b></span><span>Déf<b>${u.def}${u.buffDef?'+'+u.buffDef:''}</b></span>
+    <span>Vit<b>${u.speed}</b></span><span>Rés<b>${u.res}</b></span>
+    <span>Hab<b>${u.skill}</b></span><span>Chance<b>${u.luck}</b></span></div>
+    <div class="weap">Arme : <b>${u.weapon.name}</b> (${frType(u.weapon.type)})<br>Puis ${u.weapon.might} · Préc ${u.weapon.hit} · Crit ${u.weapon.crit} · Portée ${u.weapon.rmin}${u.weapon.rmax>u.weapon.rmin?'–'+u.weapon.rmax:''}</div>
+    ${terrLine}${sk}</div>`;
 }
-function frType(t){ return {sword:'épée',lance:'lance',axe:'hache',bow:'arc',tome:'magie',staff:'soin'}[t]||t; }
-function terrName(t){ return {plain:'Plaine',forest:'Forêt',mount:'Montagne',fort:'Fort',water:'Eau',wall:'Mur',throne:'Trône'}[t]; }
 
-/* ---------- TURN STATE ---------- */
-let gameState='intro', turn=1, selected=null, sel={dist:null,prev:null,destSet:null,atkSet:null};
-let preMove=null, mode='idle', threatOn=false, busy=false;
-let pendingSkillTarget=false;
+/* ============================================================
+   STATE
+   ============================================================ */
+let gameState='intro',turn=1,selected=null,sel={},preMove=null,mode='idle',threatOn=false,busy=false;
+let phase='prologue'; // 'prologue' | 'campaign'
+let level=1; let hero=null; let companions=[]; // persistent across campaign levels
+let prologueWipeDone=false;
 
-function startGame(){
-  hide('introOv');
-  buildMap(); setupUnits(); renderBoard(); fitBoard(); renderUnits();
-  gameState='playerPhase'; turn=1; updateTurnUI();
-  log('La bataille commence. Phase des Joueurs.','sys');
-  speak([
-    {who:'Varkos',role:'Le Roi des Cendres',face:'👑',
-     text:'<span class="em">Tu oses gravir mes cendres, petit écuyer ?</span>\nL\'Aube est morte. Je l\'ai enterrée de mes mains.'},
-    {who:'Kaell',role:'Chevalier de l\'Aube',face:'🗡️',
-     text:'Vous n\'êtes plus mon maître, Varkos.\n<span class="go">Je viens reprendre la Lame d\'Aurore — et vous libérer d\'elle.</span>'},
-  ]);
-}
 function updateTurnUI(){
   $('turnNum').textContent=turn;
-  $('phaseLbl').textContent = gameState==='enemyPhase'?'Phase Ennemie':'Phase des Joueurs';
+  $('phaseLbl').textContent=gameState==='enemyPhase'?'Phase Ennemie':'Phase des Joueurs';
   $('turnPill').className='turnpill '+(gameState==='enemyPhase'?'phase-enemy':'phase-player');
-  $('endTurnBtn').disabled = gameState!=='playerPhase';
+  $('endTurnBtn').disabled=gameState!=='playerPhase';
+  $('actSub').textContent = phase==='prologue'?'Prologue' : (level===10?'Niveau 10 · LE ROI DES CENDRES':'Niveau '+level+(level%5===0?' · Lieutenant':''));
 }
 
-/* ---------- SELECTION & MOVEMENT ---------- */
+/* ---------- PROLOGUE ---------- */
+function buildPrologueMap(){
+  map=Array.from({length:H},()=>Array(W).fill('plain'));
+  const set=(x,y,t)=>{if(x>=0&&x<W&&y>=0&&y<H)map[y][x]=t;};
+  for(const x of [0,1,12,13]) set(x,0,'wall'); set(0,1,'wall'); set(13,1,'wall');
+  set(7,1,'throne'); set(5,2,'fort'); set(9,2,'fort');
+  [[3,1],[10,1],[2,3],[11,3],[4,4],[9,4],[3,7],[10,7],[5,8],[8,8]].forEach(p=>set(p[0],p[1],'forest'));
+  [[1,4],[12,4],[6,3],[7,3]].forEach(p=>set(p[0],p[1],'mount'));
+  for(let x=2;x<=11;x++){set(x,5,'water');set(x,6,'water');}
+  set(4,5,'plain');set(4,6,'plain');set(9,5,'plain');set(9,6,'plain');set(2,5,'plain');set(11,6,'plain');
+  set(1,8,'fort');set(12,8,'fort');
+  for(const x of [0,1,12,13]) set(x,10,'wall');
+}
+function setupPrologue(){
+  units=[];uid=0;
+  const P=(name,cls,glyph,st,wpn,sk,x,y)=>units.push(mk(Object.assign({faction:'player',name,cls,glyph,weapon:wpn,items:[{name:'Vulnéraire',heal:15}],skill_name:sk,skill_desc:SKILL_DESC[sk],skill_cd:3,portrait:glyph},st,{x,y})));
+  P('Kaell','Chevalier de l\'Aube','🗡️',{maxhp:28,atk:12,def:9,res:6,skill:11,speed:11,luck:9,mov:6},WP.laurore,'Vaillance',6,9);
+  units[0].isLord=true;
+  P('Brienne','Garde de fer','🛡️',{maxhp:32,atk:11,def:13,res:4,skill:7,speed:6,luck:6,mov:5},WP.lance,'Rempart',5,9);
+  P('Sylas','Mage de feu','🔮',{maxhp:22,atk:13,def:4,res:9,skill:11,speed:9,luck:7,mov:5},WP.tome,'Déflagration',7,9);
+  P('Wren','Archère','🏹',{maxhp:24,atk:12,def:6,res:6,skill:13,speed:13,luck:10,mov:6},WP.bow,'Tir perçant',8,9);
+  // Varkos — overpowered
+  units.push(mk({faction:'boss',name:'Varkos',cls:'Le Roi des Cendres',glyph:'👑',maxhp:90,atk:22,def:16,res:18,skill:13,speed:10,luck:10,mov:0,weapon:WP.boss,items:[],boss:true,special_cd:1,portrait:'👑',x:7,y:1,prologue:true}));
+}
+
+/* ---------- PROCEDURAL MAP ---------- */
+function genMap(lvl,bossLevel){
+  for(let attempt=0;attempt<12;attempt++){
+    map=Array.from({length:H},()=>Array(W).fill('plain'));
+    const set=(x,y,t)=>{if(x>=0&&x<W&&y>=0&&y<H)map[y][x]=t;};
+    // border walls top/bottom corners
+    for(const x of [0,1,12,13]){set(x,0,'wall');set(x,10,'wall');}
+    // optional river
+    if(Math.random()<0.6){
+      if(Math.random()<0.5){ // horizontal
+        const ry=rnd(4,6); for(let x=2;x<=11;x++)set(x,ry,'water');
+        const b1=rnd(3,6),b2=rnd(8,11); set(b1,ry,'plain'); set(b2,ry,'plain');
+      } else { // vertical
+        const rx=rnd(5,8); for(let y=2;y<=8;y++)set(rx,y,'water');
+        const b1=rnd(3,4),b2=rnd(6,7); set(rx,b1,'plain'); set(rx,b2,'plain');
+      }
+    }
+    // forests
+    const nF=rnd(5,9); for(let i=0;i<nF;i++){const x=rnd(2,11),y=rnd(1,9);if(map[y][x]==='plain')set(x,y,'forest');}
+    // mountains
+    const nM=rnd(2,5); for(let i=0;i<nM;i++){const x=rnd(2,11),y=rnd(2,8);if(map[y][x]==='plain')set(x,y,'mount');}
+    // forts
+    const nFt=rnd(1,2); for(let i=0;i<nFt;i++){const x=rnd(2,11),y=rnd(2,8);if(map[y][x]==='plain')set(x,y,'fort');}
+    // boss throne
+    if(bossLevel){set(7,1,'throne');}
+    // spawns
+    const pSpawns=[],eSpawns=[];
+    for(let x=3;x<=10&&pSpawns.length<5;x++){if(passableTerr(x,9))pSpawns.push([x,9]);}
+    for(let x=2;x<=11&&pSpawns.length<5;x++){if(passableTerr(x,8))pSpawns.push([x,8]);}
+    for(let x=3;x<=10;x++){if(passableTerr(x,1))eSpawns.push([x,1]);}
+    for(let x=2;x<=11;x++){if(passableTerr(x,2))eSpawns.push([x,2]);}
+    if(pSpawns.length<3||eSpawns.length<4) continue;
+    // connectivity check
+    if(!connected(pSpawns[0],eSpawns[0])) continue;
+    return {pSpawns,eSpawns};
+  }
+  // fallback simple
+  map=Array.from({length:H},()=>Array(W).fill('plain'));
+  const ps=[],es=[];for(let x=3;x<=7;x++){ps.push([x,9]);es.push([x,1]);}
+  return {pSpawns:ps,eSpawns:es};
+}
+function connected(a,b){
+  const seen=new Set([key(a[0],a[1])]);const q=[a];
+  while(q.length){const [x,y]=q.shift();if(x===b[0]&&y===b[1])return true;
+    for(const d of [[0,1],[0,-1],[1,0],[-1,0]]){const nx=x+d[0],ny=y+d[1];if(passableTerr(nx,ny)&&!seen.has(key(nx,ny))){seen.add(key(nx,ny));q.push([nx,ny]);}}}
+  return seen.has(key(b[0],b[1]));
+}
+
+/* ---------- ENEMY GENERATION ---------- */
+const ENEMY_ARCH=[
+  {name:'Soudard',glyph:'🗡️',w:'e_sword',base:{maxhp:24,atk:10,def:8,res:3,skill:6,speed:8,luck:3,mov:5}},
+  {name:'Lancier',glyph:'🛡️',w:'e_lance',base:{maxhp:26,atk:10,def:10,res:3,skill:6,speed:6,luck:3,mov:5}},
+  {name:'Brigand',glyph:'🪓',w:'e_axe',base:{maxhp:30,atk:12,def:7,res:2,skill:5,speed:7,luck:2,mov:6}},
+  {name:'Archer',glyph:'🏹',w:'e_bow',base:{maxhp:22,atk:10,def:6,res:5,skill:9,speed:9,luck:4,mov:5}},
+  {name:'Mage noir',glyph:'🔮',w:'e_tome',base:{maxhp:20,atk:12,def:4,res:7,skill:8,speed:8,luck:4,mov:5}},
+];
+function scaleStat(b,lvl,k){return Math.round(b+lvl*k);}
+function genEnemies(lvl,spawns,bossLevel){
+  const list=[];
+  const count=Math.min(7,2+Math.ceil(lvl/1.6));
+  const used=new Set();
+  function freeSpawn(){let s;let tries=0;do{s=pick(spawns);tries++;}while(used.has(key(s[0],s[1]))&&tries<40);used.add(key(s[0],s[1]));return s;}
+  if(bossLevel){
+    const s=[7,1];used.add(key(7,1));
+    if(level===10){
+      list.push(mk({faction:'boss',name:'Varkos',cls:'Le Roi des Cendres',glyph:'👑',
+        maxhp:scaleStat(70,lvl,2),atk:scaleStat(16,lvl,0.8),def:scaleStat(12,lvl,0.5),res:scaleStat(14,lvl,0.5),
+        skill:scaleStat(10,lvl,0.4),speed:scaleStat(9,lvl,0.3),luck:8,mov:0,weapon:WP.boss,items:[],boss:true,special_cd:2,portrait:'👑',x:7,y:1,finalBoss:true}));
+    } else {
+      list.push(mk({faction:'boss',name:'Lieutenant des Cendres',cls:'Champion ennemi',glyph:'☠️',
+        maxhp:scaleStat(40,lvl,2.4),atk:scaleStat(13,lvl,0.9),def:scaleStat(10,lvl,0.6),res:scaleStat(8,lvl,0.5),
+        skill:scaleStat(8,lvl,0.4),speed:scaleStat(8,lvl,0.4),luck:6,mov:5,weapon:WP.e_axe,items:[],boss:true,special_cd:3,portrait:'☠️',x:7,y:1}));
+    }
+  }
+  for(let i=0;i<count;i++){
+    const a=pick(ENEMY_ARCH);const s=freeSpawn();
+    list.push(mk({faction:'enemy',name:a.name,cls:'Soldat des Cendres',glyph:a.glyph,weapon:WP[a.w],items:[],ai:'aggressive',
+      maxhp:scaleStat(a.base.maxhp,lvl,2.0),atk:scaleStat(a.base.atk,lvl,1.0),def:scaleStat(a.base.def,lvl,0.6),
+      res:scaleStat(a.base.res,lvl,0.5),skill:scaleStat(a.base.skill,lvl,0.4),speed:scaleStat(a.base.speed,lvl,0.4),
+      luck:a.base.luck,mov:a.base.mov,x:s[0],y:s[1]}));
+  }
+  return list;
+}
+
+/* ---------- CAMPAIGN SETUP ---------- */
+function makeHero(name,clsId){
+  const C=CLASSES.find(c=>c.id===clsId);
+  const h=mk(Object.assign({faction:'player',name:name||'Cendre',cls:C.cls,glyph:C.glyph,weapon:C.weapon,
+    items:[{name:'Vulnéraire',heal:15}],skill_name:C.skill,skill_desc:SKILL_DESC[C.skill],skill_cd:3,
+    portrait:C.glyph,isLord:true,lvl:1,xp:0},JSON.parse(JSON.stringify(C.base)),{x:6,y:9}));
+  return h;
+}
+function makeMerc(lvl,kind){
+  const a = kind==='heal'
+    ? {name:'Clerc',cls:'Soigneur mercenaire',glyph:'✚',w:'staff',healer:true,base:{maxhp:22,atk:5,def:6,res:9,skill:8,speed:8,luck:9,mov:5}}
+    : pick([
+        {name:'Garde',cls:'Mercenaire',glyph:'🛡️',w:'lance',base:{maxhp:30,atk:10,def:11,res:4,skill:7,speed:6,luck:6,mov:5}},
+        {name:'Bretteur',cls:'Mercenaire',glyph:'🗡️',w:'laurore',base:{maxhp:26,atk:11,def:8,res:5,skill:10,speed:10,luck:7,mov:6}},
+        {name:'Tireuse',cls:'Mercenaire',glyph:'🏹',w:'bow',base:{maxhp:23,atk:10,def:6,res:6,skill:11,speed:11,luck:8,mov:6}},
+      ]);
+  return mk(Object.assign({faction:'player',name:a.name,cls:a.cls,glyph:a.glyph,weapon:WP[a.w],items:[{name:'Vulnéraire',heal:15}],
+    healer:!!a.healer,portrait:a.glyph,merc:true},JSON.parse(JSON.stringify(a.base)),
+    {maxhp:scaleStat(a.base.maxhp,lvl,1.4),atk:scaleStat(a.base.atk,lvl,0.7),def:scaleStat(a.base.def,lvl,0.5),
+     skill:scaleStat(a.base.skill,lvl,0.3),speed:scaleStat(a.base.speed,lvl,0.3),x:5,y:9}));
+}
+function startCampaignLevel(){
+  busy=false; threatOn=false; clearThreat(); hideMenu();
+  const bossLevel=(level%5===0);
+  const {pSpawns,eSpawns}=genMap(level,bossLevel);
+  // refill companions to 2 (1 of them a healer-ish from lvl 2)
+  companions=companions.filter(c=>c.alive);
+  while(companions.length<2){ companions.push(makeMerc(level, companions.some(c=>c.healer)?'fight':'heal')); }
+  // reset per-level state
+  hero.acted=false;hero.skillCd=0;hero.buffDef=0;hero.buffTurns=0;hero.hp=hero.maxhp;
+  companions.forEach(c=>{c.acted=false;c.skillCd=0;c.buffDef=0;c.buffTurns=0;c.alive=true;c.hp=c.maxhp;});
+  // build units list
+  units=[hero,...companions];
+  // assign player spawns
+  const ps=pSpawns.slice(); const order=[hero,...companions];
+  order.forEach((u,i)=>{const s=ps[i]||ps[ps.length-1]||[6,9];u.x=s[0];u.y=s[1];u.alive=true;});
+  // enemies
+  const enemies=genEnemies(level,eSpawns,bossLevel);
+  units=units.concat(enemies);
+  renderBoard();fitBoard();renderUnits();
+  turn=1;gameState='playerPhase';selected=null;mode='idle';updateTurnUI();
+  log(`— Niveau ${level} — ${bossLevel?(level===10?'Le Roi des Cendres vous attend.':'Un Lieutenant garde la voie.'):'Survivez et vainquez tous les ennemis.'}`,'sys');
+}
+
+/* ---------- SELECTION & MOVE ---------- */
 function selectUnit(u){
-  selected=u; preMove={x:u.x,y:u.y}; mode='selected';
-  const {dist,prev}=reachable(u);
-  const dests=destinations(u,dist);
-  const destSet=new Set(dests.map(d=>key(d[0],d[1])));
-  const stand=dests.map(d=>[d[0],d[1]]);
+  selected=u;preMove={x:u.x,y:u.y};mode='selected';
+  const {dist,prev}=reachable(u);const dests=destinations(u,dist);
+  const destSet=new Set(dests.map(d=>key(d[0],d[1])));const stand=dests.map(d=>[d[0],d[1]]);
   const atkSet=attackTilesFrom(u,stand);
   sel={dist,prev,destSet,atkSet};
   clearHighlights();
-  destSet.forEach(k=>{ const [x,y]=k.split(',').map(Number); cells[y][x].classList.add('move'); });
-  atkSet.forEach(k=>{ if(!destSet.has(k)){ const [x,y]=k.split(',').map(Number); cells[y][x].classList.add('atk'); }});
-  inspect(u); renderUnits();
+  destSet.forEach(k=>{const [x,y]=k.split(',').map(Number);cells[y][x].classList.add('move');});
+  atkSet.forEach(k=>{if(!destSet.has(k)){const [x,y]=k.split(',').map(Number);cells[y][x].classList.add('atk');}});
+  inspect(u);renderUnits();
 }
-function deselect(){ selected=null; mode='idle'; clearHighlights(); hideMenu(); renderUnits(); }
-
+function deselect(){selected=null;mode='idle';clearHighlights();hideMenu();renderUnits();}
 function onCellClick(x,y){
-  if(busy||gameState!=='playerPhase'){ const u=at(x,y); if(u) inspect(u); return; }
+  if(busy||gameState!=='playerPhase'){const u=at(x,y);if(u)inspect(u);return;}
+  if(mode==='choosingAttack'){const t=at(x,y);if(t&&isFoeUnit(t)&&sel.curTargets.has(t.id)){openForecast(selected,t,sel.atkOpts||{});}return;}
+  if(mode==='choosingSkillTarget'){handleSkillTarget(x,y);return;}
+  if(mode==='selected'&&selected){if(sel.destSet.has(key(x,y))||(x===selected.x&&y===selected.y)){moveSelectedTo(x,y);return;}}
   const u=at(x,y);
-
-  if(mode==='choosingAttack'){
-    const tgt=at(x,y);
-    if(tgt && isFoeUnit(tgt) && sel.curTargets.has(tgt.id)){ openForecast(selected,tgt); return; }
-    return;
-  }
-  if(mode==='choosingSkillTarget'){ handleSkillTarget(x,y); return; }
-
-  if(mode==='selected' && selected){
-    if(sel.destSet.has(key(x,y))){ moveSelectedTo(x,y); return; }
-    // clicked own tile = stay
-    if(x===selected.x && y===selected.y){ moveSelectedTo(x,y); return; }
-  }
-
-  // fresh selection
-  if(u && u.faction==='player' && !u.acted){ hideMenu(); selectUnit(u); return; }
-  if(u){ inspect(u); deselectKeepInfo(); return; }
+  if(u&&u.faction==='player'&&!u.acted){hideMenu();selectUnit(u);return;}
+  if(u){inspect(u);deselect();return;}
   deselect();
 }
-function deselectKeepInfo(){ selected=null; mode='idle'; clearHighlights(); hideMenu(); renderUnits(); }
-
 async function moveSelectedTo(x,y){
-  busy=true; hideMenu();
-  const u=selected;
-  const path=pathTo(sel.prev,u,x,y);
-  clearHighlights();
-  // animate path
-  for(const [px,py] of path){ u.x=px; u.y=py; renderUnits(); await sleep(90); }
-  u.x=x; u.y=y; renderUnits(); inspect(u);
-  busy=false;
-  openActionMenu();
+  busy=true;hideMenu();const u=selected;const path=pathTo(sel.prev,u,x,y);clearHighlights();
+  for(const [px,py] of path){u.x=px;u.y=py;renderUnits();await sleep(85);}
+  u.x=x;u.y=y;renderUnits();inspect(u);busy=false;openActionMenu();
 }
 
 /* ---------- ACTION MENU ---------- */
 const menu=$('actionMenu');
-function hideMenu(){ menu.style.display='none'; }
+function hideMenu(){menu.style.display='none';}
 function openActionMenu(){
-  const u=selected; menu.innerHTML=''; mode='menu';
+  const u=selected;menu.innerHTML='';mode='menu';
   const c=cells[u.y][u.x];
-  let mx=c.offsetLeft+c.offsetWidth+4, my=c.offsetTop;
-  menu.style.left=Math.min(mx, board.offsetWidth-160)+'px'; menu.style.top=my+'px';
-
-  const add=(label,fn,enabled=true,title='')=>{ const b=document.createElement('button'); b.className='btn'; b.textContent=label; b.title=title;
-    b.disabled=!enabled; b.onclick=fn; menu.appendChild(b); };
-
-  if(u.healer){
-    const tgts=healTargets(u);
-    add('✚ Soigner',()=>beginHeal(),tgts.length>0,'Soigne un allié à portée');
-  } else {
-    const tgts=attackTargets(u);
-    add('⚔ Attaquer',()=>beginAttack(),tgts.length>0,'Choisir une cible à portée');
-  }
-  if(u.skill_name){
-    add('✦ '+u.skill_name,()=>useSkill(), u.skillCd<=0, u.skill_desc);
-  }
-  if(u.items && u.items.length){ add('🜂 Objet ('+u.items[0].name+')',()=>useItem()); }
-  add('⏳ Attendre',()=>finishUnit());
-  add('↩ Retour',()=>cancelMove());
+  menu.style.left=Math.min(c.offsetLeft+c.offsetWidth+4,board.offsetWidth-160)+'px';menu.style.top=c.offsetTop+'px';
+  const add=(label,fn,en=true,title='')=>{const b=document.createElement('button');b.className='btn';b.textContent=label;b.title=title;b.disabled=!en;b.onclick=fn;menu.appendChild(b);};
+  if(u.healer){add('✚ Soigner',beginHeal,healTargets(u).length>0);}
+  else {add('⚔ Attaquer',()=>beginAttack({}),attackTargets(u).length>0);}
+  if(u.skill_name){add('✦ '+u.skill_name,useSkill,u.skillCd<=0,u.skill_desc);}
+  if(u.items&&u.items.length){add('🜂 '+u.items[0].name,useItem);}
+  add('⏳ Attendre',finishUnit);
+  add('↩ Retour',cancelMove);
   menu.style.display='flex';
 }
-function cancelMove(){ const u=selected; u.x=preMove.x; u.y=preMove.y; renderUnits(); hideMenu(); selectUnit(u); }
+function cancelMove(){const u=selected;u.x=preMove.x;u.y=preMove.y;renderUnits();hideMenu();selectUnit(u);}
+function finishUnit(){const u=selected;u.acted=true;hideMenu();clearHighlights();deselect();renderUnits();afterPlayerAction();}
+function afterPlayerAction(){if(checkVictory())return;}
 
-function finishUnit(){ const u=selected; u.acted=true; hideMenu(); clearHighlights();
-  renderUnits(); deselect(); checkPlayerPhaseEnd(); }
-
-/* ---------- ATTACK FLOW ---------- */
-function attackTargets(u){ return foes(u).filter(f=>inRange(u,man(u.x,u.y,f.x,f.y))); }
-function beginAttack(){
-  const u=selected; const tgts=attackTargets(u);
-  mode='choosingAttack'; hideMenu(); clearHighlights();
-  sel.curTargets=new Set(tgts.map(t=>t.id));
-  tgts.forEach(t=>cells[t.y][t.x].classList.add('tgt'));
-  log(`${u.name} cherche une cible…`,'pl');
-}
-function openForecast(att,def,opts={}){
-  const fc=forecast(att,def,att.x,att.y,opts);
-  pendingAttack={att,def,opts,fc};
-  const m=$('forecastModal');
-  const advTxt=(tri)=>tri>0?'<span class="adv">▲ avantage</span>':tri<0?'<span class="dis">▼ désavantage</span>':'';
-  const tri=triangle(att.weapon.type,def.weapon.type);
-  const sideHTML=(unit,dmg,hit,crit,dbl,active,foe)=>{
-    const after=foe? Math.max(0,def.hp - (fc.aDmg*(fc.aDouble?2:1))) : '';
-    return `<div class="fc-side ${foe?'foe':''}">
-      <div class="nm">${unit.glyph} ${unit.name}</div>
-      <div class="big">${unit.hp}<span style="font-size:13px;color:#888">/${unit.maxhp}</span></div>
-      ${active?`
-      <div class="fc-row"><span>Dégâts</span><b>${dmg}${dbl?' ×2':''}</b></div>
-      <div class="fc-row"><span>Précision</span><b>${hit}%</b></div>
-      <div class="fc-row"><span>Critique</span><b>${crit}%</b></div>`:`<div class="fc-row"><span class="hint">aucune riposte</span></div>`}
-    </div>`;
-  };
-  m.innerHTML=`
-    <h2>Prévision de combat ${advTxt(tri)}</h2>
-    <div class="hint">Distance ${fc.dist} &middot; ${frType(att.weapon.type)} vs ${frType(def.weapon.type)}</div>
-    <div class="forecast">
-      ${sideHTML(att,fc.aDmg,fc.aHit,fc.aCrit,fc.aDouble,true,false)}
-      <div class="fc-vs">⚔</div>
-      ${sideHTML(def,fc.dDmg,fc.dHit,fc.dCrit,fc.dDouble,fc.counter,true)}
-    </div>
-    <div class="center" style="display:flex;gap:10px;justify-content:center">
-      <button class="btn primary" id="fcGo">Engager le combat</button>
-      <button class="btn" id="fcCancel">Annuler</button>
-    </div>`;
-  $('forecastOv').classList.add('show');
-  $('fcGo').onclick=()=>{ $('forecastOv').classList.remove('show'); resolveCombat(pendingAttack); };
-  $('fcCancel').onclick=()=>{ $('forecastOv').classList.remove('show'); beginAttack(); };
-}
+/* ---------- ATTACK ---------- */
+function attackTargets(u){return foes(u).filter(f=>inRange(u,man(u.x,u.y,f.x,f.y)));}
+function beginAttack(opts){const u=selected;const tgts=attackTargets(u);mode='choosingAttack';sel.atkOpts=opts||{};hideMenu();clearHighlights();sel.curTargets=new Set(tgts.map(t=>t.id));tgts.forEach(t=>cells[t.y][t.x].classList.add('tgt'));}
 let pendingAttack=null;
-
-function floatText(u,txt,cls){
-  const c=cells[u.y] && cells[u.y][u.x]; if(!c) return;
-  const f=document.createElement('div'); f.className='float '+cls; f.textContent=txt;
-  f.style.left=(c.offsetLeft+c.offsetWidth/2-10)+'px'; f.style.top=c.offsetTop+'px';
-  board.appendChild(f); setTimeout(()=>f.remove(),1000);
+function openForecast(att,def,opts){
+  const fc=forecast(att,def,att.x,att.y,opts);pendingAttack={att,def,opts,fc};
+  const tri=triangle(att.weapon.type,def.weapon.type);
+  const advTxt=tri>0?'<span class="adv">▲ avantage</span>':tri<0?'<span class="dis">▼ désavantage</span>':'';
+  const side=(unit,dmg,hit,crit,dbl,active,foe)=>`<div class="fc-side ${foe?'foe':''}"><div class="nm">${unit.glyph} ${unit.name}</div><div class="big">${unit.hp}<span style="font-size:13px;color:#888">/${unit.maxhp}</span></div>${active?`<div class="fc-row"><span>Dégâts</span><b>${dmg}${dbl?' ×2':''}</b></div><div class="fc-row"><span>Précision</span><b>${hit}%</b></div><div class="fc-row"><span>Critique</span><b>${crit}%</b></div>`:`<div class="fc-row"><span class="hint">aucune riposte</span></div>`}</div>`;
+  $('forecastModal').innerHTML=`<h2>Prévision ${advTxt}</h2><div class="hint">Distance ${fc.dist} · ${frType(att.weapon.type)} vs ${frType(def.weapon.type)}</div>
+    <div class="forecast">${side(att,fc.aDmg,fc.aHit,fc.aCrit,fc.aDouble,true,false)}<div class="fc-vs">⚔</div>${side(def,fc.dDmg,fc.dHit,fc.dCrit,fc.dDouble,fc.counter,true)}</div>
+    <div class="center" style="display:flex;gap:10px;justify-content:center"><button class="btn primary" id="fcGo">Engager</button><button class="btn" id="fcCancel">Annuler</button></div>`;
+  $('forecastOv').classList.add('show');
+  $('fcGo').onclick=()=>{$('forecastOv').classList.remove('show');resolveCombat(pendingAttack);};
+  $('fcCancel').onclick=()=>{$('forecastOv').classList.remove('show');beginAttack(sel.atkOpts);};
 }
-function hurtAnim(u){ const el=$('unit-'+u.id); if(el){ el.classList.add('hurt'); setTimeout(()=>el.classList.remove('hurt'),300);} }
-
+function floatText(u,txt,cls){const c=cells[u.y]&&cells[u.y][u.x];if(!c)return;const f=document.createElement('div');f.className='float '+cls;f.textContent=txt;f.style.left=(c.offsetLeft+c.offsetWidth/2-10)+'px';f.style.top=c.offsetTop+'px';board.appendChild(f);setTimeout(()=>f.remove(),1000);}
+function hurtAnim(u){const el=$('unit-'+u.id);if(el){el.classList.add('hurt');setTimeout(()=>el.classList.remove('hurt'),300);}}
 async function strike(att,def,opts){
-  if(!att.alive||!def.alive) return;
-  const hit=computeHit(att,def,opts);
-  const roll=Math.random()*100;
-  if(roll>=hit){ floatText(def,'Raté','miss'); log(`${att.name} manque ${def.name}.`, att.faction==='player'?'pl':'en'); hurtAnim(att); await sleep(420); return; }
-  const crit=Math.random()*100 < computeCrit(att,def,opts);
-  let dmg=computeDmg(att,def,opts); if(crit) dmg*=3;
-  def.hp=Math.max(0,def.hp-dmg);
-  hurtAnim(def);
-  floatText(def, (crit?'★ ':'')+dmg, crit?'crit':'dmg');
-  log(`${att.name} ${crit?'<b>frappe critique</b> et ':''}inflige <b>${dmg}</b> à ${def.name}. (${def.hp}/${def.maxhp})`, att.faction==='player'?'pl':'en');
-  renderUnits(); await sleep(crit?640:440);
-  if(def.hp<=0){ await killUnit(def, att); }
+  if(!att.alive||!def.alive)return;
+  if(Math.random()*100>=computeHit(att,def)){floatText(def,'Raté','miss');log(`${att.name} manque ${def.name}.`,att.faction==='player'?'pl':'en');await sleep(380);return;}
+  const crit=Math.random()*100<computeCrit(att,def,opts);
+  let dmg=computeDmg(att,def,opts);if(crit)dmg*=3;
+  def.hp=Math.max(0,def.hp-dmg);hurtAnim(def);floatText(def,(crit?'★ ':'')+dmg,crit?'crit':'dmg');
+  log(`${att.name} ${crit?'<b>critique</b> et ':''}inflige <b>${dmg}</b> à ${def.name}. (${def.hp}/${def.maxhp})`,att.faction==='player'?'pl':'en');
+  renderUnits();await sleep(crit?600:420);
+  if(def.hp<=0)await killUnit(def);
 }
 async function resolveCombat(pa){
-  busy=true; const {att,def,opts}=pa; opts.consumed=true;
+  busy=true;const {att,def,opts}=pa;
   log(`— ${att.name} engage ${def.name} —`,'sys');
-  // boss first-damaged story trigger handled in killUnit/strike via flag
-  const wasBossFull = (b)=>b&&b.boss&&b.hp===b.maxhp;
-  const bossWasFull = wasBossFull(def);
-
+  const bossWasFull=def.boss&&def.hp===def.maxhp&&def.prologue;
   const dist=man(att.x,att.y,def.x,def.y);
   await strike(att,def,opts);
-  // counter
-  if(def.alive && canCounter(def,att,dist)){ await strike(def,att,{}); }
-  // doubles
-  if(att.alive && def.alive && doubles(att,def)){ await strike(att,def,opts); }
-  if(def.alive && att.alive && canCounter(def,att,dist) && doubles(def,att)){ await strike(def,att,{}); }
-
-  // empower (Vaillance) consumed
-  if(att.empower){ att.empower=false; }
+  if(def.alive&&canCounter(def,att,dist))await strike(def,att,{});
+  if(att.alive&&def.alive&&doubles(att,def))await strike(att,def,opts);
+  if(def.alive&&att.alive&&canCounter(def,att,dist)&&doubles(def,att))await strike(def,att,{});
   busy=false;
-
-  // boss first-hit dialogue
-  if(bossWasFull){ const boss=units.find(u=>u.boss); if(boss && boss.alive && boss.hp<boss.maxhp){ bossFirstHurt(); } }
-
-  if(checkVictory()) return;
+  if(bossWasFull){const b=units.find(u=>u.boss);if(b&&b.alive&&b.hp<b.maxhp)bossProloChat();}
+  if(checkVictory())return;
   finishUnit();
 }
-function bossFirstHurt(){
-  const boss=units.find(u=>u.boss); if(boss.hasSpoken) return; boss.hasSpoken=true;
-  speak([
-    {who:'Varkos',role:'Le Roi des Cendres',face:'👑',
-     text:'<span class="em">Tu saignes ton propre maître…</span> La lame me chuchote ton nom, Kaell.\nElle a déjà bu le mien.'},
-    {who:'Kaell',role:'Chevalier de l\'Aube',face:'🗡️',
-     text:'Ce n\'est pas vous qui parlez. C\'est <span class="go">elle</span>.\nJe me souviens du maître que vous étiez. Je me battrai pour ce souvenir.'},
-  ]);
+function bossProloChat(){const b=units.find(u=>u.boss);if(!b||b.spoke)return;b.spoke=true;speak([{who:'Varkos',role:'Le Roi des Cendres',face:'👑',text:'<span class="em">Tu griffes une montagne, écuyer.</span> La Lame ne saigne pas pour si peu.'}]);}
+
+async function killUnit(u){
+  u.alive=false;floatText(u,'✝',u.faction==='player'?'dmg':'heal');
+  log(`<b>${u.name}</b> est tombé.`,u.faction==='player'?'pl':'sys');renderUnits();await sleep(180);
 }
 
-async function killUnit(u, by){
-  u.alive=false;
-  floatText(u,'✝',u.faction==='player'?'dmg':'heal');
-  log(`<b>${u.name}</b> est tombé${u.faction==='player'?'':' .'}`, u.faction==='player'?'pl':'sys');
-  // drop / story
-  renderUnits();
-  await sleep(200);
-  if(u.faction==='player' && !u.isLord){
-    speak([{who:u.name,role:u.cls,face:u.portrait||'👤',text:'« Tenez bon… sans moi. »'}]);
+/* ---------- SKILLS / ITEMS / HEAL ---------- */
+function healTargets(u){return allies(u).filter(a=>a.id!==u.id&&man(u.x,u.y,a.x,a.y)<=u.weapon.rmax&&a.hp<a.maxhp);}
+function beginHeal(){const u=selected;const tgts=healTargets(u);mode='choosingSkillTarget';sel.skillMode='heal';sel.healTargets=new Set(tgts.map(t=>t.id));hideMenu();clearHighlights();tgts.forEach(t=>cells[t.y][t.x].classList.add('tgt'));}
+function useItem(){const u=selected;const it=u.items[0];const b=u.hp;u.hp=Math.min(u.maxhp,u.hp+it.heal);floatText(u,'+'+(u.hp-b),'heal');log(`${u.name} utilise ${it.name} (+${u.hp-b}).`,'pl');u.items.shift();renderUnits();finishUnit();}
+function useSkill(){
+  const u=selected;hideMenu();
+  switch(u.skill_name){
+    case 'Vaillance':u.skillCd=u.skill_cd;u.empower={forceCrit:true};log(`<b>${u.name}</b> — Vaillance ! Prochaine attaque critique & double.`,'pl');attackTargets(u).length?beginAttack({forceCrit:true}):finishUnit();return;
+    case 'Tir perçant':u.skillCd=u.skill_cd;log(`<b>${u.name}</b> encoche un Tir perçant.`,'pl');attackTargets(u).length?beginAttack({pierce:true}):finishUnit();return;
+    case 'Fureur':u.skillCd=u.skill_cd;log(`<b>${u.name}</b> entre en Fureur (+6 puis).`,'pl');attackTargets(u).length?beginAttack({might:6}):finishUnit();return;
+    case 'Rempart':u.buffDef=6;u.buffTurns=2;allies(u).forEach(a=>{if(a.id!==u.id&&man(u.x,u.y,a.x,a.y)===1){a.buffDef=Math.max(a.buffDef,3);a.buffTurns=Math.max(a.buffTurns,2);}});u.skillCd=u.skill_cd;floatText(u,'🛡 +Déf','heal');log(`<b>${u.name}</b> lève un Rempart.`,'pl');finishUnit();return;
+    case 'Déflagration':mode='choosingSkillTarget';sel.skillMode='blast';hideMenu();clearHighlights();sel.blastSet=new Set();for(let dx=-3;dx<=3;dx++)for(let dy=-3;dy<=3;dy++){if(Math.abs(dx)+Math.abs(dy)<=3){const tx=u.x+dx,ty=u.y+dy;if(tx>=0&&tx<W&&ty>=0&&ty<H){sel.blastSet.add(key(tx,ty));cells[ty][tx].classList.add('skill');}}}log(`${u.name} vise une zone…`,'pl');return;
   }
+}
+async function handleSkillTarget(x,y){
+  const u=selected;
+  if(sel.skillMode==='heal'){const t=at(x,y);if(t&&sel.healTargets.has(t.id)){const b=t.hp;t.hp=Math.min(t.maxhp,t.hp+18);floatText(t,'+'+(t.hp-b),'heal');log(`${u.name} soigne ${t.name} (+${t.hp-b}).`,'pl');renderUnits();finishUnit();}return;}
+  if(sel.skillMode==='blast'){if(!sel.blastSet.has(key(x,y)))return;busy=true;clearHighlights();const hits=foes(u).filter(f=>Math.abs(f.x-x)<=1&&Math.abs(f.y-y)<=1);log(`<b>Déflagration</b> — ${hits.length} ennemi(s).`,'pl');for(const f of hits){const dmg=Math.max(0,u.atk+6-f.res);f.hp=Math.max(0,f.hp-dmg);hurtAnim(f);floatText(f,dmg,'dmg');log(`${f.name} subit <b>${dmg}</b>.`,'pl');await sleep(200);if(f.hp<=0)await killUnit(f);}u.skillCd=u.skill_cd;renderUnits();busy=false;if(checkVictory())return;finishUnit();return;}
 }
 
 /* ---------- VICTORY / DEFEAT ---------- */
 function checkVictory(){
-  const boss=units.find(u=>u.boss);
-  const kaell=units.find(u=>u.isLord);
-  if(boss && !boss.alive){ winGame(); return true; }
-  if(kaell && !kaell.alive){ loseGame('Kaell est tombé. L\'Aube s\'éteint à jamais.'); return true; }
-  if(!units.some(u=>u.alive&&u.faction==='player')){ loseGame('Toute ta troupe a péri.'); return true; }
+  if(phase==='prologue'){ if(hero_isLordDeadPro())return loseProEarly(); return false; }
+  // campaign
+  if(hero&&!hero.alive){loseGame();return true;}
+  const enemiesLeft=units.some(u=>u.alive&&isFoeUnit(u));
+  if(!enemiesLeft){levelClear();return true;}
+  if(!units.some(u=>u.alive&&u.faction==='player')){loseGame();return true;}
   return false;
 }
-function checkPlayerPhaseEnd(){
-  if(checkVictory()) return;
-  const any=units.some(u=>u.alive&&u.faction==='player'&&!u.acted);
-  // do nothing automatic — player ends with button
+function hero_isLordDeadPro(){return false;}
+function loseProEarly(){return false;}
+
+/* ---------- TURN LOOP ---------- */
+$('endTurnBtn').addEventListener('click',()=>{if(gameState==='playerPhase'&&!busy)enemyPhase();});
+$('threatBtn').addEventListener('click',()=>{threatOn=!threatOn;showThreat(threatOn);$('threatBtn').classList.toggle('primary',threatOn);});
+$('helpBtn').addEventListener('click',()=>$('helpOv').classList.add('show'));
+$('helpClose').addEventListener('click',()=>$('helpOv').classList.remove('show'));
+
+function tickBuffs(){units.forEach(u=>{if(u.alive&&u.buffTurns>0){u.buffTurns--;if(u.buffTurns<=0)u.buffDef=0;}});}
+function applyTerrainHeal(side){units.forEach(u=>{if(u.alive&&((side==='player')===(u.faction==='player'))){const t=TERR[map[u.y][u.x]];if(t.heal&&u.hp<u.maxhp){const b=u.hp;u.hp=Math.min(u.maxhp,u.hp+Math.ceil(u.maxhp*t.heal));if(u.hp>b)floatText(u,'+'+(u.hp-b),'heal');}}});}
+
+async function enemyPhase(){
+  deselect();clearThreat();threatOn=false;$('threatBtn').classList.remove('primary');
+  gameState='enemyPhase';updateTurnUI();busy=true;
+  log('— Phase Ennemie —','en');
+  applyTerrainHeal('enemy');renderUnits();await sleep(300);
+
+  // prologue scripted wipe at turn 3
+  if(phase==='prologue'&&turn>=3&&!prologueWipeDone){busy=false;await prologueWipe();return;}
+
+  const order=units.filter(u=>u.alive&&isFoeUnit(u)).sort((a,b)=>(a.boss?1:0)-(b.boss?1:0));
+  for(const e of order){if(!e.alive)continue;if(checkVictory()){busy=false;return;}await aiAct(e);await sleep(150);}
+
+  tickBuffs();
+  units.forEach(u=>{if(u.alive)u.acted=false;if(u.skillCd>0)u.skillCd--;if(u.empower)u.empower=null;});
+  if(phase==='prologue'){ // prologue: enemies barely scratched; keep going until turn 3 wipe
+    if(checkVictory()){busy=false;return;}
+    turn++;gameState='playerPhase';updateTurnUI();applyTerrainHeal('player');renderUnits();
+    log(`— Tour ${turn} —`,'sys');busy=false;return;
+  }
+  if(checkVictory()){busy=false;return;}
+  turn++;gameState='playerPhase';updateTurnUI();applyTerrainHeal('player');renderUnits();
+  log(`— Tour ${turn} — Phase des Joueurs —`,'sys');busy=false;
+}
+
+async function prologueWipe(){
+  prologueWipeDone=true;
+  const boss=units.find(u=>u.boss);
+  log('<b>Varkos</b> déchaîne l\'Embrasement Final…','en');
+  speak([
+    {who:'Varkos',role:'Le Roi des Cendres',face:'👑',text:'<span class="em">Assez joué.</span>\nVois donc ce qu\'est devenu ton maître, Kaell.'},
+    {who:'Kaell',role:'Chevalier de l\'Aube',face:'🗡️',text:'Tout le monde — <span class="go">DERRIÈRE MOI !</span>'},
+  ], async ()=>{
+    for(const p of units.filter(u=>u.alive&&u.faction==='player')){
+      floatText(p,'🔥','crit');await sleep(120);p.hp=0;p.alive=false;hurtAnim(p);renderUnits();await sleep(160);
+    }
+    log('Toute la troupe de l\'Aube est tombée.','en');
+    await sleep(500);
+    speak([
+      {who:'Varkos',role:'Le Roi des Cendres',face:'👑',text:'Reposez. Veyle est à moi, et au feu qui me dévore.'},
+      {who:'…',role:'',face:'🕯️',text:'Ainsi tomba le dernier Ordre de l\'Aube.\nMais une braise, parfois, attend dix ans avant de reprendre.'},
+    ], showTimeskip);
+  });
+}
+function showTimeskip(){
+  gameState='timeskip';
+  $('endModal').innerHTML=`<div class="endbig lose">— DIX ANS PLUS TARD —</div>
+   <p class="lore center">Le règne du <span class="em">Roi des Cendres</span> a réduit Veyle en poussière grise.<br>
+   Les héros d'autrefois ne sont plus que des noms gravés dans la suie.<br><br>
+   Mais aujourd'hui, <span class="go">quelqu'un se lève</span>. Toi.</p>
+   <div class="center"><button class="btn gold" id="toCreate">Forger mon héros ▸</button></div>`;
+  $('endOv').classList.add('show');
+  $('toCreate').onclick=()=>{$('endOv').classList.remove('show');openCreation();};
+}
+
+/* ---------- AI ---------- */
+function valueOf(u){if(u.healer)return 1.7;if(u.weapon.type==='tome')return 1.5;if(u.weapon.type==='bow')return 1.35;if(u.isLord)return 1.45;return 1.0;}
+function aiScore(e,sx,sy,target){
+  const dist=man(sx,sy,target.x,target.y);
+  const tmpx=e.x,tmpy=e.y;e.x=sx;e.y=sy;
+  const fc=forecast(e,target,sx,sy);e.x=tmpx;e.y=tmpy;
+  const dealt=fc.aDmg*(fc.aHit/100)*(fc.aDouble?2:1);
+  const kill=(fc.aDmg*(fc.aDouble?2:1)>=target.hp)&&fc.aHit>=65;
+  const taken=fc.counter?fc.dDmg*(fc.dHit/100)*(fc.dDouble?2:1):0;
+  let s=dealt*valueOf(target);
+  if(kill)s+=60*valueOf(target);
+  s-=taken*1.1; if(taken>=e.hp)s-=50;
+  const t=TERR[map[sy][sx]];s+=t.def*1.5+t.avo*0.05;
+  s+=triangle(e.weapon.type,target.weapon.type)*3;
+  s+=(1-target.hp/target.maxhp)*6;
+  return {score:s,kill};
+}
+async function aiAct(e){
+  let stands;
+  if(e.mov===0){stands=[[e.x,e.y]];}
+  else{const {dist,prev}=reachable(e);e._prev=prev;stands=destinations(e,dist).map(d=>[d[0],d[1]]);stands.push([e.x,e.y]);}
+  const players=foes(e);if(players.length===0)return;
+  const wounded=e.hp<=e.maxhp*0.32&&!e.boss;
+
+  // boss special
+  if(e.boss){
+    e.special_cd--;
+    const near=players.filter(p=>man(e.x,e.y,p.x,p.y)<=3);
+    if(e.special_cd<=0&&near.length){
+      e.special_cd=3;
+      const dmg=e.finalBoss?10:7;
+      log(`<b>${e.name}</b> exhale le <span style="color:#e8693f">Cri des Cendres</span> !`,'en');floatText(e,'🔥CRI','crit');await sleep(300);
+      for(const p of near){p.hp=Math.max(0,p.hp-dmg);hurtAnim(p);floatText(p,dmg,'dmg');log(`${p.name} brûle (-${dmg}).`,'en');await sleep(140);if(p.hp<=0)await killUnit(p);}
+      renderUnits();if(checkVictory())return;
+    }
+  }
+
+  let best=null;
+  for(const [sx,sy] of stands){for(const p of players){if(!inRange(e,man(sx,sy,p.x,p.y)))continue;const r=aiScore(e,sx,sy,p);if(!best||r.score>best.score)best={target:p,sx,sy,score:r.score,kill:r.kill};}}
+
+  if(best&&(best.score>0||best.kill)&&!(wounded&&!best.kill)){
+    if(!e.boss&&(best.sx!==e.x||best.sy!==e.y))await aiMove(e,best.sx,best.sy);
+    await aiAttack(e,best.target);return;
+  }
+  if(e.boss)return;
+  if(wounded){const safe=pickRetreat(e,stands,players);if(safe&&(safe[0]!==e.x||safe[1]!==e.y)){await aiMove(e,safe[0],safe[1]);log(`${e.name} se replie.`,'en');}return;}
+  const adv=pickAdvance(e,stands,players);if(adv&&(adv[0]!==e.x||adv[1]!==e.y))await aiMove(e,adv[0],adv[1]);
+}
+function threatAtTile(x,y,players){let n=0;players.forEach(p=>{if(man(p.x,p.y,x,y)<=p.mov+p.weapon.rmax)n++;});return n;}
+function pickRetreat(e,stands,players){let best=null,bs=-1e9;for(const [x,y] of stands){const t=TERR[map[y][x]];const s=-threatAtTile(x,y,players)*10+t.def*4+t.avo*0.1+(t.heal?20:0);if(s>bs){bs=s;best=[x,y];}}return best;}
+function pickAdvance(e,stands,players){let best=null,bs=-1e9;for(const [x,y] of stands){const nd=Math.min(...players.map(p=>man(x,y,p.x,p.y)));const t=TERR[map[y][x]];const s=-nd*4+t.def*2+t.avo*0.05;if(s>bs){bs=s;best=[x,y];}}return best;}
+async function aiMove(e,tx,ty){let path;if(e._prev)path=pathTo(e._prev,e,tx,ty);else{const {prev}=reachable(e);path=pathTo(prev,e,tx,ty);}for(const [px,py] of path){e.x=px;e.y=py;renderUnits();await sleep(75);}e.x=tx;e.y=ty;renderUnits();await sleep(50);}
+async function aiAttack(e,target){if(!target.alive)return;log(`<b>${e.name}</b> attaque ${target.name}.`,'en');const dist=man(e.x,e.y,target.x,target.y);await strike(e,target,{});if(target.alive&&canCounter(target,e,dist))await strike(target,e,{});if(e.alive&&target.alive&&doubles(e,target))await strike(e,target,{});if(target.alive&&e.alive&&canCounter(target,e,dist)&&doubles(target,e))await strike(target,e,{});renderUnits();checkVictory();}
+
+/* ---------- LEVEL CLEAR / REWARD ---------- */
+function levelClear(){
+  gameState='cleared';
+  if(level===10){ winGame(); return; }
+  hero.lvl=(hero.lvl||1)+1;
+  // companion small growth
+  companions.filter(c=>c.alive).forEach(c=>{c.maxhp+=2;c.atk+=1;c.def+=1;});
+  // build upgrade choices
+  const pool=[
+    {ic:'❤️',t:'Vigueur',d:'+6 PV max',fn:()=>{hero.maxhp+=6;hero.hp+=6;}},
+    {ic:'⚔️',t:'Force',d:'+2 Attaque',fn:()=>{hero.atk+=2;}},
+    {ic:'🛡️',t:'Cuirasse',d:'+2 Défense',fn:()=>{hero.def+=2;}},
+    {ic:'🌀',t:'Célérité',d:'+1 Vitesse',fn:()=>{hero.speed+=1;}},
+    {ic:'🎯',t:'Adresse',d:'+2 Habileté',fn:()=>{hero.skill+=2;}},
+    {ic:'🍀',t:'Fortune',d:'+2 Chance',fn:()=>{hero.luck+=2;}},
+    {ic:'🜂',t:'Réserve',d:'Récupère un Vulnéraire',fn:()=>{hero.items.push({name:'Vulnéraire',heal:15});}},
+    {ic:'✨',t:'Magie de l\'arme',d:'+1 Puissance d\'arme',fn:()=>{hero.weapon=Object.assign({},hero.weapon,{might:hero.weapon.might+1});}},
+  ];
+  const choices=[];const p=pool.slice();while(choices.length<3&&p.length){choices.push(p.splice(rnd(0,p.length-1),1)[0]);}
+  $('rewardModal').innerHTML=`<h2 class="center">Niveau ${level} vaincu ⚜</h2>
+    <p class="lore center">Tu te renforces. Choisis une amélioration.</p>
+    <div class="upgrades">${choices.map((c,i)=>`<div class="upcard" data-i="${i}"><div class="ui">${c.ic}</div><div class="ut">${c.t}</div><div class="hint">${c.d}</div></div>`).join('')}</div>`;
+  $('rewardOv').classList.add('show');
+  $('rewardModal').querySelectorAll('.upcard').forEach(el=>el.onclick=()=>{
+    choices[+el.dataset.i].fn();
+    $('rewardOv').classList.remove('show');
+    level++;
+    startCampaignLevel();
+  });
+  log(`Niveau ${level} terminé !`,'sys');
 }
 function winGame(){
   gameState='win';
   speak([
-    {who:'Varkos',role:'Le Roi des Cendres',face:'👑',
-     text:'<span class="em">…Ah.</span> Le poids s\'en va.\nKaell… je la vois enfin pour ce qu\'elle est. Un feu qui ne réchauffe rien.'},
-    {who:'Kaell',role:'Chevalier de l\'Aube',face:'🗡️',
-     text:'Maître. <span class="go">Reposez-vous.</span> J\'achèverai ce que l\'Ordre a commencé.'},
-    {who:'Varkos',role:'Le Roi des Cendres',face:'👑',
-     text:'La Lame d\'Aurore… reprends-la. Mais souviens-toi de moi :\nce n\'est pas l\'arme qui corrompt. C\'est la main qui croit n\'avoir <span class="go">rien à perdre</span>.'},
-  ], showWin);
+    {who:'Varkos',role:'Le Roi des Cendres',face:'👑',text:'<span class="em">…Toi ?</span> Une braise née de mes propres cendres ?'},
+    {who:hero.name,role:hero.cls,face:hero.glyph,text:'Vous avez brûlé tout ce que l\'Aube protégeait.\n<span class="go">Aujourd\'hui, le feu s\'éteint.</span>'},
+    {who:'Varkos',role:'Le Roi des Cendres',face:'👑',text:'Achève-le… libère-moi de la Lame. Et souviens-toi :\nce n\'est pas l\'arme qui corrompt, mais la main qui croit n\'avoir <span class="go">rien à perdre</span>.'},
+  ],()=>{
+    $('endModal').innerHTML=`<div class="endbig win">⚜ VEYLE EST LIBRE ⚜</div>
+      <p class="lore center"><span class="go">${hero.name}</span> brise la Lame d'Aurore et disperse les cendres du Roi.<br>
+      Dix ans après la chute de l'Aube, une nouvelle aube se lève — la tienne.<br><br>
+      <b>Héros niveau ${hero.lvl}.</b> Tu peux poursuivre l'aventure en mode sans fin.</p>
+      <div class="center" style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+        <button class="btn gold" id="endless">Continuer (sans fin) ▸</button>
+        <button class="btn" onclick="location.reload()">Recommencer</button></div>`;
+    $('endOv').classList.add('show');
+    $('endless').onclick=()=>{$('endOv').classList.remove('show');level++;startCampaignLevel();};
+    log('VICTOIRE — Varkos est vaincu.','sys');
+  });
 }
-function showWin(){
-  const m=$('endModal');
-  m.innerHTML=`
-    <div class="endbig win">⚜ VICTOIRE ⚜</div>
-    <p class="lore center">Varkos s'effondre, et la <span class="go">Lame d'Aurore</span> se descelle du trône, sa flamme enfin apaisée.
-    Kaell la relève — non comme une arme de conquête, mais comme une promesse.<br><br>
-    <b>Objet obtenu : Lame d'Aurore</b> (épée légendaire, +12 puis, crit +25).<br>
-    L'Ordre de l'Aube renaîtra de ses cendres.</p>
-    <div class="center" style="display:flex;gap:10px;justify-content:center">
-      <button class="btn gold" onclick="location.reload()">Rejouer</button>
-    </div>`;
-  $('endOv').classList.add('show');
-  log('VICTOIRE — Varkos est vaincu.','sys');
-}
-function loseGame(reason){
+function loseGame(){
   gameState='lose';
-  const m=$('endModal');
-  m.innerHTML=`
-    <div class="endbig lose">☠ DÉFAITE ☠</div>
-    <p class="lore center">${reason}<br><br>Le Roi des Cendres règne encore sur Veyle.<br>
-    <span class="hint">Conseil : utilise la <b>Zone de menace</b> avant chaque déplacement, profite des forêts (+esquive),
-    et fais cuirasser Brienne devant tes mages.</span></p>
+  $('endModal').innerHTML=`<div class="endbig lose">☠ FIN DU VOYAGE ☠</div>
+    <p class="lore center"><span class="go">${hero.name}</span> est tombé au niveau ${level}.<br>
+    Les cendres reprennent ce qu'elles avaient cédé… pour l'instant.<br><br>
+    <span class="hint">Conseil : utilise la <b>Menace</b> avant chaque déplacement, place ton héros sur forêt/fort, et garde un mercenaire devant lui.</span></p>
     <div class="center"><button class="btn gold" onclick="location.reload()">Réessayer</button></div>`;
   $('endOv').classList.add('show');
   log('DÉFAITE.','en');
 }
 
-/* ---------- ITEMS / HEAL / SKILLS ---------- */
-function useItem(){
-  const u=selected; const it=u.items[0];
-  const before=u.hp; u.hp=Math.min(u.maxhp,u.hp+it.heal);
-  floatText(u,'+'+(u.hp-before),'heal'); log(`${u.name} utilise ${it.name} (+${u.hp-before} PV).`,'pl');
-  u.items.shift(); renderUnits(); finishUnit();
+/* ---------- CHARACTER CREATION ---------- */
+let chosenClass=null;
+function openCreation(){
+  phase='campaign';
+  const grid=$('classGrid');grid.innerHTML='';
+  CLASSES.forEach(c=>{
+    const b=c.base;
+    const el=document.createElement('div');el.className='classcard';el.dataset.id=c.id;
+    el.innerHTML=`<div class="ct">${c.name}<span class="glyphbig">${c.glyph}</span></div>
+      <div class="hint">${c.cls} · ${frType(c.weapon.type)}</div>
+      <div class="pro">✔ ${c.pros}</div><div class="con">✘ ${c.cons}</div>
+      <div class="st">PV ${b.maxhp} · Atq ${b.atk} · Déf ${b.def} · Rés ${b.res} · Vit ${b.speed} · Mvt ${b.mov} — Compétence : <b style="color:var(--gold2)">${c.skill}</b></div>`;
+    el.onclick=()=>{chosenClass=c.id;grid.querySelectorAll('.classcard').forEach(x=>x.classList.remove('sel'));el.classList.add('sel');$('createBtn').disabled=false;$('createBtn').textContent='Commencer l\'aventure ▸';};
+    grid.appendChild(el);
+  });
+  $('creationOv').classList.add('show');
 }
-function healTargets(u){ return allies(u).filter(a=>a.id!==u.id && man(u.x,u.y,a.x,a.y)<=u.weapon.rmax && a.hp<a.maxhp); }
-function beginHeal(){
-  const u=selected; const tgts=healTargets(u);
-  mode='choosingSkillTarget'; sel.skillMode='heal'; sel.healTargets=new Set(tgts.map(t=>t.id));
-  hideMenu(); clearHighlights();
-  tgts.forEach(t=>cells[t.y][t.x].classList.add('tgt'));
-  log(`${u.name} prépare un soin…`,'pl');
-}
-function useSkill(){
-  const u=selected; hideMenu();
-  switch(u.skill_name){
-    case 'Vaillance': u.empower=true; u.skillCd=u.skill_cd;
-      log(`<b>${u.name}</b> invoque Vaillance — sa prochaine attaque sera critique et double.`,'pl');
-      // go straight to attack selection
-      if(attackTargets(u).length){ beginAttack(); } else { finishUnit(); }
-      return;
-    case 'Tir perçant': u.skillCd=u.skill_cd; u.pierceNext=true;
-      log(`<b>${u.name}</b> encoche un Tir perçant.`,'pl');
-      if(attackTargets(u).length){ beginAttack(); } else { finishUnit(); }
-      return;
-    case 'Rempart': u.buffDef=6; u.buffTurns=2;
-      allies(u).forEach(a=>{ if(a.id!==u.id && man(u.x,u.y,a.x,a.y)===1){ a.buffDef=Math.max(a.buffDef,3); a.buffTurns=Math.max(a.buffTurns,2);} });
-      u.skillCd=u.skill_cd; floatText(u,'🛡 +Déf','heal');
-      log(`<b>${u.name}</b> lève un Rempart (+déf à elle et aux alliés proches).`,'pl');
-      finishUnit(); return;
-    case 'Lumière diffuse': {
-      let n=0; allies(u).forEach(a=>{ if(a.id!==u.id && man(u.x,u.y,a.x,a.y)===1 && a.hp<a.maxhp){ const b=a.hp; a.hp=Math.min(a.maxhp,a.hp+14); floatText(a,'+'+(a.hp-b),'heal'); n++; } });
-      u.skillCd=u.skill_cd; log(`<b>${u.name}</b> diffuse une lumière (${n} alliés soignés).`,'pl');
-      renderUnits(); finishUnit(); return; }
-    case 'Déflagration':
-      mode='choosingSkillTarget'; sel.skillMode='blast'; hideMenu(); clearHighlights();
-      // valid center tiles: within mov reach? simply within range 3 of caster
-      sel.blastSet=new Set();
-      for(let dx=-3;dx<=3;dx++)for(let dy=-3;dy<=3;dy++){ if(Math.abs(dx)+Math.abs(dy)<=3){ const tx=u.x+dx,ty=u.y+dy; if(tx>=0&&tx<W&&ty>=0&&ty<H){ sel.blastSet.add(key(tx,ty)); cells[ty][tx].classList.add('skill'); } } }
-      log(`${u.name} vise une zone (3×3)…`,'pl'); return;
-  }
-}
-async function handleSkillTarget(x,y){
-  const u=selected;
-  if(sel.skillMode==='heal'){
-    const t=at(x,y); if(t && sel.healTargets.has(t.id)){ const b=t.hp; const amt=18; t.hp=Math.min(t.maxhp,t.hp+amt);
-      floatText(t,'+'+(t.hp-b),'heal'); log(`${u.name} soigne ${t.name} (+${t.hp-b} PV).`,'pl'); renderUnits(); finishUnit(); }
-    return;
-  }
-  if(sel.skillMode==='blast'){
-    if(!sel.blastSet.has(key(x,y))) return;
-    busy=true; clearHighlights();
-    const hits=foes(u).filter(f=>Math.abs(f.x-x)<=1 && Math.abs(f.y-y)<=1);
-    log(`<b>Déflagration</b> de ${u.name} sur (${x},${y}) — ${hits.length} ennemi(s).`,'pl');
-    floatText({x,y},'🔥','crit');
-    for(const f of hits){ const dmg=Math.max(0, u.atk + 6 - f.res); f.hp=Math.max(0,f.hp-dmg); hurtAnim(f); floatText(f,dmg,'dmg');
-      log(`${f.name} subit <b>${dmg}</b>. (${Math.max(0,f.hp)}/${f.maxhp})`,'pl'); await sleep(220);
-      if(f.hp<=0) await killUnit(f,u); }
-    u.skillCd=u.skill_cd; renderUnits(); busy=false;
-    if(checkVictory())return; finishUnit(); return;
-  }
-}
+$('createBtn').addEventListener('click',()=>{
+  if(!chosenClass)return;
+  const name=($('nameInput').value||'Cendre').trim().slice(0,14)||'Cendre';
+  hero=makeHero(name,chosenClass);
+  companions=[];
+  $('creationOv').classList.remove('show');
+  level=1;
+  $('log').innerHTML='';
+  startCampaignLevel();
+  speak([{who:hero.name,role:hero.cls,face:hero.glyph,text:'Le Roi des Cendres règne encore.\n<span class="go">Pas pour longtemps.</span>'}]);
+});
 
-/* ---------- END TURN / ENEMY PHASE ---------- */
-$('endTurnBtn').addEventListener('click',()=>{ if(gameState==='playerPhase'&&!busy) enemyPhase(); });
-$('threatBtn').addEventListener('click',()=>{ threatOn=!threatOn; showThreat(threatOn);
-  $('threatBtn').classList.toggle('primary',threatOn); });
-$('helpBtn').addEventListener('click',()=>$('helpOv').classList.add('show'));
+/* ---------- PROLOGUE START ---------- */
+$('introBtn').addEventListener('click',()=>{
+  $('introOv').classList.remove('show');
+  phase='prologue';prologueWipeDone=false;
+  buildPrologueMap();setupPrologue();renderBoard();fitBoard();renderUnits();
+  turn=1;gameState='playerPhase';updateTurnUI();
+  log('Prologue — l\'assaut du trône calciné.','sys');
+  speak([
+    {who:'Varkos',role:'Le Roi des Cendres',face:'👑',text:'<span class="em">Tu oses gravir mes cendres, écuyer ?</span>'},
+    {who:'Kaell',role:'Chevalier de l\'Aube',face:'🗡️',text:'Vous n\'êtes plus mon maître, Varkos.\nNous tiendrons. <span class="go">Quoi qu\'il en coûte.</span>'},
+  ]);
+});
 
-function tickBuffs(faction){
-  units.forEach(u=>{ if(u.faction===faction && u.alive && u.buffTurns>0){ u.buffTurns--; if(u.buffTurns<=0){ u.buffDef=0; } } });
-}
-function applyTerrainHeal(faction){
-  units.forEach(u=>{ if(u.faction===faction && u.alive){ const t=TERR[map[u.y][u.x]];
-    if(t.heal && u.hp<u.maxhp){ const b=u.hp; u.hp=Math.min(u.maxhp,u.hp+Math.ceil(u.maxhp*t.heal)); if(u.hp>b){ floatText(u,'+'+(u.hp-b),'heal'); } } } });
-}
-
-async function enemyPhase(){
-  deselect(); clearThreat(); threatOn=false; $('threatBtn').classList.remove('primary');
-  gameState='enemyPhase'; updateTurnUI(); busy=true;
-  log('— Phase Ennemie —','en');
-  applyTerrainHeal('enemy'); applyTerrainHeal('boss'); renderUnits();
-  // reinforcements
-  if(turn===3) spawnReinforcements();
-  await sleep(350);
-
-  const order=units.filter(u=>u.alive&&isFoeUnit(u)).sort((a,b)=>(a.boss?1:0)-(b.boss?1:0)); // boss last
-  for(const e of order){
-    if(!e.alive) continue;
-    if(checkVictory()){ busy=false; return; }
-    await aiAct(e);
-    await sleep(180);
-  }
-  // decrement boss special
-  // end enemy phase
-  tickBuffs('player'); // player rempart fades on their next turn approach; simplified
-  units.forEach(u=>{ if(u.alive) u.acted=false; if(u.skillCd>0)u.skillCd--; });
-  if(checkVictory()){ busy=false; return; }
-  turn++; gameState='playerPhase'; updateTurnUI(); applyTerrainHeal('player'); renderUnits();
-  log(`— Tour ${turn} — Phase des Joueurs —`,'sys');
-  busy=false;
-}
-
-function spawnReinforcements(){
-  const add=(x,y)=>{ const u=mk({faction:'enemy',name:'Renfort',cls:'Pillard des Cendres',glyph:'🪓',
-    maxhp:28,atk:13,def:7,res:2,skill:5,speed:7,luck:3,mov:6,weapon:WEAPONS.e_axe,items:[],ai:'aggressive',x,y});
-    units.push(u); };
-  if(passableTerr(2,1)&&!at(2,1)) add(2,1);
-  if(passableTerr(11,1)&&!at(11,1)) add(11,1);
-  renderUnits();
-  log('<b>Des renforts ennemis</b> surgissent par les flancs !','en');
-  speak([{who:'Varkos',role:'Le Roi des Cendres',face:'👑',text:'<span class="em">Mes cendres sont innombrables.</span> Combien des tiens tomberont avant toi ?'}]);
-}
-
-/* ---------- AI ---------- */
-function valueOf(u){ // target priority weight (kill these first)
-  if(u.healer) return 1.6; if(u.weapon.type==='tome') return 1.5; if(u.weapon.type==='bow') return 1.35;
-  if(u.isLord) return 1.4; return 1.0;
-}
-function aiScore(e, sx, sy, target){
-  const fc=forecast(e, target, sx, sy);
-  let dealt = fc.aDmg*(fc.aHit/100)*(fc.aDouble?2:1);
-  let kill = (dealt>=target.hp) || (fc.aDmg*(fc.aDouble?2:1) >= target.hp && fc.aHit>=70);
-  let taken = fc.counter ? fc.dDmg*(fc.dHit/100)*(fc.dDouble?2:1) : 0;
-  let score = dealt*valueOf(target);
-  if(kill) score += 60*valueOf(target);            // strongly prefer guaranteed-ish kills
-  score -= taken*1.1;                               // avoid suicidal trades
-  if(taken>=e.hp) score -= 50;                      // never trade your life pointlessly
-  // prefer defensive terrain at destination
-  const t=TERR[map[sy][sx]]; score += t.def*1.5 + t.avo*0.05;
-  // weapon triangle nudge
-  score += triangle(e.weapon.type,target.weapon.type)*3;
-  // focus low-HP targets a touch more
-  score += (1 - target.hp/target.maxhp)*6;
-  return {score,dealt,kill,taken,sx,sy};
-}
-async function aiAct(e){
-  // gather candidate stand tiles
-  let stands;
-  if(e.mov===0){ stands=[[e.x,e.y]]; }
-  else { const {dist,prev}=reachable(e); e._prev=prev; stands=destinations(e,dist).map(d=>[d[0],d[1]]); stands.push([e.x,e.y]); }
-  const players=foes(e);
-  if(players.length===0) return;
-
-  // wounded retreat behaviour
-  const wounded = e.hp <= e.maxhp*0.35 && !e.boss;
-
-  // best attack action
-  let best=null;
-  for(const [sx,sy] of stands){
-    for(const p of players){
-      if(!inRange(e, man(sx,sy,p.x,p.y))) continue;
-      const r=aiScore(e,sx,sy,p);
-      if(!best || r.score>best.score) best=Object.assign({target:p},r);
-    }
-  }
-
-  // boss special: every time its special_cd hits 0 and a player within 3, AoE
-  if(e.boss){
-    e.special_cd--;
-    const near=players.filter(p=>man(e.x,e.y,p.x,p.y)<=3);
-    if(e.special_cd<=0 && near.length>=1){
-      e.special_cd=3;
-      log('<b>Varkos</b> exhale le <span style="color:#e8693f">Cri des Cendres</span> !','en');
-      floatText(e,'🔥CRI','crit'); await sleep(300);
-      for(const p of near){ const dmg=8; p.hp=Math.max(0,p.hp-dmg); hurtAnim(p); floatText(p,dmg,'dmg');
-        log(`${p.name} brûle (-${dmg}, ${Math.max(0,p.hp)}/${p.maxhp}).`,'en'); await sleep(160);
-        if(p.hp<=0) await killUnit(p,e); }
-      renderUnits();
-      if(checkVictory()) return;
-      // boss still attacks after if someone in melee/range
-      best=null;
-      for(const p of foes(e)){ if(inRange(e,man(e.x,e.y,p.x,p.y))){ const r=aiScore(e,e.x,e.y,p); if(!best||r.score>best.score) best=Object.assign({target:p},r); } }
-    }
-  }
-
-  if(best && (best.score>0 || best.kill) && !(wounded && !best.kill)){
-    // move then attack
-    if(!e.boss && (best.sx!==e.x||best.sy!==e.y)){ await aiMove(e,best.sx,best.sy); }
-    await aiAttack(e,best.target);
-    return;
-  }
-
-  // no good attack — reposition
-  if(e.boss) return; // boss holds throne
-  if(wounded){
-    // retreat to safest reachable tile (least player threat, best terrain), prefer forts
-    const safe=pickRetreat(e,stands,players);
-    if(safe && (safe[0]!==e.x||safe[1]!==e.y)){ await aiMove(e,safe[0],safe[1]); log(`${e.name} se replie.`,'en'); }
-    return;
-  }
-  // advance: move to reachable tile minimizing distance to nearest player, preferring cover
-  const adv=pickAdvance(e,stands,players);
-  if(adv && (adv[0]!==e.x||adv[1]!==e.y)){ await aiMove(e,adv[0],adv[1]); }
-}
-function threatAtTile(x,y,players){ // how many players could hit this tile next turn (approx by current range from current pos + their mov)
-  let n=0; players.forEach(p=>{ const reach=p.mov + p.weapon.rmax; if(man(p.x,p.y,x,y)<=reach) n++; }); return n;
-}
-function pickRetreat(e,stands,players){
-  let best=null,bs=-1e9;
-  for(const [x,y] of stands){ const t=TERR[map[y][x]]; let s = -threatAtTile(x,y,players)*10 + t.def*4 + t.avo*0.1 + (t.heal?20:0);
-    if(s>bs){ bs=s; best=[x,y]; } }
-  return best;
-}
-function pickAdvance(e,stands,players){
-  let best=null,bs=-1e9;
-  for(const [x,y] of stands){
-    const nd=Math.min(...players.map(p=>man(x,y,p.x,p.y)));
-    const t=TERR[map[y][x]];
-    let s = -nd*4 + t.def*2 + t.avo*0.05; // approach but value cover
-    if(s>bs){ bs=s; best=[x,y]; }
-  }
-  return best;
-}
-async function aiMove(e,tx,ty){
-  let path;
-  if(e._prev){ path=pathTo(e._prev,e,tx,ty); }
-  else { const {prev}=reachable(e); path=pathTo(prev,e,tx,ty); }
-  for(const [px,py] of path){ e.x=px; e.y=py; renderUnits(); await sleep(80); }
-  e.x=tx; e.y=ty; renderUnits(); await sleep(60);
-}
-async function aiAttack(e,target){
-  if(!target.alive) return;
-  log(`<b>${e.name}</b> attaque ${target.name}.`,'en');
-  const dist=man(e.x,e.y,target.x,target.y);
-  await strike(e,target,{});
-  if(target.alive && canCounter(target,e,dist)) await strike(target,e,{});
-  if(e.alive && target.alive && doubles(e,target)) await strike(e,target,{});
-  if(target.alive && e.alive && canCounter(target,e,dist) && doubles(target,e)) await strike(target,e,{});
-  renderUnits(); checkVictory();
-}
-
-/* ---------- UTIL ---------- */
-function hide(id){ $(id).classList.remove('show'); }
-window.startGame=startGame; window.hide=hide;
-
-// responsive cell size
+/* ---------- FIT ---------- */
 function fitBoard(){
-  const wrap=document.querySelector('.boardwrap'); if(!wrap||!cells.length) return;
-  const avail=wrap.clientWidth-24; const cs=Math.max(30,Math.min(46,Math.floor(avail/W)));
-  document.documentElement.style.setProperty('--cs',cs+'px');
-  renderUnits();
+  const wrap=document.querySelector('.boardwrap');if(!wrap||!cells.length)return;
+  const avail=wrap.clientWidth-24;const cs=Math.max(28,Math.min(46,Math.floor(avail/W)));
+  document.documentElement.style.setProperty('--cs',cs+'px');renderUnits();
 }
 window.addEventListener('resize',fitBoard);
 </script>
