@@ -53,10 +53,9 @@ h1,h2,h3,.disp{font-family:'Cinzel',serif; letter-spacing:.04em;}
     repeating-linear-gradient(45deg,#12131a,#12131a 12px,#13141c 12px,#13141c 24px);
   box-shadow:inset 0 0 60px #000a;}
 #board{position:relative; display:grid; gap:0; margin:0 auto; width:max-content;}
-.cell{position:relative; width:46px; height:46px; outline:1px solid #ffffff0a;
-  display:flex; align-items:center; justify-content:center; cursor:default; font-size:24px;
+.cell{position:relative; width:var(--cs,46px); height:var(--cs,46px); outline:1px solid #ffffff0a;
+  display:flex; align-items:center; justify-content:center; cursor:default; font-size:calc(var(--cs,46px)*0.52);
   transition:box-shadow .08s;}
-@media(max-width:560px){ .cell{width:38px; height:38px; font-size:20px;} }
 
 /* terrain */
 .t-plain{background:linear-gradient(#23281e,#1c2018);}
@@ -82,10 +81,9 @@ h1,h2,h3,.disp{font-family:'Cinzel',serif; letter-spacing:.04em;}
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.45;}}
 
 /* unit token */
-.unit{position:absolute; width:46px; height:46px; display:flex; align-items:center; justify-content:center;
-  font-size:25px; pointer-events:none; transition:transform .14s ease, left .18s ease, top .18s ease; z-index:5;
+.unit{position:absolute; width:var(--cs,46px); height:var(--cs,46px); display:flex; align-items:center; justify-content:center;
+  font-size:calc(var(--cs,46px)*0.54); pointer-events:none; transition:transform .14s ease, left .18s ease, top .18s ease; z-index:5;
   filter:drop-shadow(0 2px 1px #000a);}
-@media(max-width:560px){ .unit{width:38px;height:38px;font-size:21px;} }
 .unit .ring{position:absolute; inset:5px; border-radius:50%; border:2px solid; opacity:.95;}
 .unit.f-player .ring{border-color:var(--player); background:radial-gradient(circle,#5aa0e022,transparent 70%);}
 .unit.f-enemy .ring{border-color:var(--enemy); background:radial-gradient(circle,#d8503a22,transparent 70%);}
@@ -533,12 +531,13 @@ function renderBoard(){
 function cellPx(){ const c=cells[0][0]; return c.getBoundingClientRect().width; }
 function renderUnits(){
   document.querySelectorAll('.unit').forEach(e=>e.remove());
-  const cs=cells[0][0].offsetWidth;
   units.filter(u=>u.alive).forEach(u=>{
+    const c=cells[u.y] && cells[u.y][u.x]; if(!c) return;
     const el=document.createElement('div');
     el.className='unit f-'+(u.faction==='player'?'player':u.faction==='boss'?'boss':'enemy')+(u.acted?' acted':'')+(selected&&selected.id===u.id?' sel':'');
     el.id='unit-'+u.id;
-    el.style.left=(u.x*cs)+'px'; el.style.top=(u.y*cs)+'px';
+    el.style.left=c.offsetLeft+'px'; el.style.top=c.offsetTop+'px';
+    el.style.width=c.offsetWidth+'px'; el.style.height=c.offsetHeight+'px';
     el.innerHTML=`<div class="ring"></div><div class="glyph">${u.glyph}</div>
       <div class="hpbar"><div class="hpfill" style="width:${Math.max(0,u.hp/u.maxhp*100)}%"></div></div>`;
     board.appendChild(el);
@@ -608,7 +607,7 @@ let pendingSkillTarget=false;
 
 function startGame(){
   hide('introOv');
-  buildMap(); setupUnits(); renderBoard(); renderUnits();
+  buildMap(); setupUnits(); renderBoard(); fitBoard(); renderUnits();
   gameState='playerPhase'; turn=1; updateTurnUI();
   log('La bataille commence. Phase des Joueurs.','sys');
   speak([
@@ -682,9 +681,8 @@ const menu=$('actionMenu');
 function hideMenu(){ menu.style.display='none'; }
 function openActionMenu(){
   const u=selected; menu.innerHTML=''; mode='menu';
-  const cs=cells[0][0].offsetWidth;
-  const rect=board.getBoundingClientRect(), wrap=board.parentElement.getBoundingClientRect();
-  let mx=u.x*cs+cs+4, my=u.y*cs;
+  const c=cells[u.y][u.x];
+  let mx=c.offsetLeft+c.offsetWidth+4, my=c.offsetTop;
   menu.style.left=Math.min(mx, board.offsetWidth-160)+'px'; menu.style.top=my+'px';
 
   const add=(label,fn,enabled=true,title='')=>{ const b=document.createElement('button'); b.className='btn'; b.textContent=label; b.title=title;
@@ -755,9 +753,9 @@ function openForecast(att,def,opts={}){
 let pendingAttack=null;
 
 function floatText(u,txt,cls){
-  const cs=cells[0][0].offsetWidth;
+  const c=cells[u.y] && cells[u.y][u.x]; if(!c) return;
   const f=document.createElement('div'); f.className='float '+cls; f.textContent=txt;
-  f.style.left=(u.x*cs+cs/2-10)+'px'; f.style.top=(u.y*cs)+'px';
+  f.style.left=(c.offsetLeft+c.offsetWidth/2-10)+'px'; f.style.top=c.offsetTop+'px';
   board.appendChild(f); setTimeout(()=>f.remove(),1000);
 }
 function hurtAnim(u){ const el=$('unit-'+u.id); if(el){ el.classList.add('hurt'); setTimeout(()=>el.classList.remove('hurt'),300);} }
@@ -1118,7 +1116,6 @@ function fitBoard(){
   const wrap=document.querySelector('.boardwrap'); if(!wrap||!cells.length) return;
   const avail=wrap.clientWidth-24; const cs=Math.max(30,Math.min(46,Math.floor(avail/W)));
   document.documentElement.style.setProperty('--cs',cs+'px');
-  cells.flat().forEach(c=>{ c.style.width=cs+'px'; c.style.height=cs+'px'; c.style.fontSize=(cs*0.52)+'px'; });
   renderUnits();
 }
 window.addEventListener('resize',fitBoard);
