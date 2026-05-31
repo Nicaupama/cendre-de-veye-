@@ -138,13 +138,52 @@ h1,h2,h3,.disp{font-family:'Cinzel',serif; letter-spacing:.04em;}
 .upcard .ut{font-family:'Cinzel'; color:var(--gold2); font-size:15px;}
 .upcard .ui{font-size:30px;}
 .kbd{font-family:'Cinzel'; background:#0006; border:1px solid var(--line); border-radius:5px; padding:1px 7px; font-size:12px;}
+/* --- juice / fx --- */
+.iconbtn{font-family:'Cinzel'; font-size:13px; cursor:pointer; color:var(--ink); background:linear-gradient(#2a2c38,#1e2029); border:1px solid var(--line); border-radius:7px; padding:6px 11px; transition:.12s;}
+.iconbtn:hover{border-color:var(--gold); color:var(--gold2);}
+.iconbtn.off{opacity:.55;}
+.topright{display:flex; align-items:center; gap:8px;}
+#vignette{position:fixed; inset:0; pointer-events:none; z-index:150; opacity:0; transition:opacity .5s;
+  background:radial-gradient(circle at 50% 50%, transparent 45%, #8a1208cc 100%);}
+#vignette.danger{opacity:1; animation:vigpulse 1.05s ease-in-out infinite;}
+@keyframes vigpulse{0%,100%{opacity:.45;}50%{opacity:.92;}}
+#flash{position:fixed; inset:0; pointer-events:none; z-index:300; opacity:0; background:#fff;}
+#flash.go{animation:flashfade .22s ease-out;}
+#flash.red{background:#ff3a1e;} #flash.dark{background:#000;}
+@keyframes flashfade{0%{opacity:.0;}10%{opacity:.85;}100%{opacity:0;}}
+#banner{position:fixed; top:34%; left:0; right:0; text-align:center; z-index:280; pointer-events:none; opacity:0;}
+#banner .bnr{display:inline-block; font-family:'Cinzel'; font-weight:900; font-size:clamp(28px,6vw,56px); letter-spacing:.08em;
+  padding:6px 30px; text-shadow:0 4px 24px #000, 0 0 30px currentColor;}
+#banner.show{animation:bannerslam 1.25s cubic-bezier(.2,1.2,.3,1) forwards;}
+@keyframes bannerslam{0%{opacity:0; transform:translateY(-30px) scale(1.4); letter-spacing:.4em;}
+  18%{opacity:1; transform:translateY(0) scale(1); letter-spacing:.08em;}
+  78%{opacity:1; transform:translateY(0) scale(1);}100%{opacity:0; transform:translateY(8px) scale(.96);}}
+.bnr-enemy{color:#e8693f;} .bnr-player{color:#7fb0d8;} .bnr-boss{color:#f0c879;}
+#bossCard{position:fixed; inset:0; z-index:290; display:none; align-items:center; justify-content:center; pointer-events:none;
+  background:radial-gradient(circle at 50% 50%, #1a0a06dd, #060709f2);}
+#bossCard.show{display:flex; animation:bossfade 2.8s ease forwards;}
+@keyframes bossfade{0%{opacity:0;}12%{opacity:1;}80%{opacity:1;}100%{opacity:0;}}
+#bossCard .bc{text-align:center;}
+#bossCard .bcface{font-size:96px; filter:drop-shadow(0 0 40px #e8693f88); animation:bcrise 2.8s ease;}
+#bossCard .bcname{font-family:'Cinzel'; font-weight:900; font-size:clamp(30px,7vw,60px); color:#f0c879; text-shadow:0 0 30px #c0432b88; letter-spacing:.12em; margin-top:6px;}
+#bossCard .bctitle{font-family:'Spectral'; font-style:italic; color:#e8896b; font-size:clamp(14px,3vw,20px); letter-spacing:.2em; text-transform:uppercase;}
+@keyframes bcrise{0%{transform:scale(.6); opacity:0;}20%{transform:scale(1); opacity:1;}100%{transform:scale(1.05);}}
+.unit.dying{animation:dying .5s ease forwards;}
+@keyframes dying{0%{opacity:1; transform:scale(1);}40%{transform:scale(1.25) rotate(6deg); filter:brightness(2);}100%{opacity:0; transform:scale(.4) rotate(-12deg);}}
 </style>
 </head>
 <body>
+<div id="vignette"></div>
+<div id="flash"></div>
+<div id="banner"><span class="bnr" id="bannerTxt"></span></div>
+<div id="bossCard"><div class="bc"><div class="bcface" id="bcFace">👑</div><div class="bcname" id="bcName">VARKOS</div><div class="bctitle" id="bcTitle">Le Roi des Cendres</div></div></div>
 <div id="app">
   <div class="topbar">
     <div class="title"><h1>Les Cendres de Veyle</h1><span class="sub" id="actSub">Prologue</span></div>
-    <div class="turnpill" id="turnPill">Tour <b id="turnNum">1</b> · <span id="phaseLbl">Phase des Joueurs</span></div>
+    <div class="topright">
+      <button class="iconbtn" id="muteBtn" title="Activer / couper le son">🔊</button>
+      <div class="turnpill" id="turnPill">Tour <b id="turnNum">1</b> · <span id="phaseLbl">Phase des Joueurs</span></div>
+    </div>
   </div>
   <div class="main">
     <div class="boardwrap"><div id="board"></div><div id="actionMenu"></div></div>
@@ -185,6 +224,7 @@ h1,h2,h3,.disp{font-family:'Cinzel',serif; letter-spacing:.04em;}
   <div class="center" style="margin-top:14px"><button class="btn gold" id="dlgNext">Suite ▸</button></div>
 </div></div>
 <div class="overlay" id="rewardOv"><div class="modal" id="rewardModal"></div></div>
+<div class="overlay" id="eventOv"><div class="modal" id="eventModal"></div></div>
 <div class="overlay" id="endOv"><div class="modal" id="endModal"></div></div>
 <div class="overlay" id="helpOv"><div class="modal">
   <h2>Comment jouer</h2>
@@ -328,6 +368,34 @@ function renderUnits(){
     el.innerHTML=`<div class="ring"></div><div class="glyph">${u.glyph}</div><div class="hpbar"><div class="hpfill" style="width:${Math.max(0,u.hp/u.maxhp*100)}%"></div></div>`;
     board.appendChild(el);
   });
+  if(typeof updateDanger==='function')updateDanger();
+}
+/* --- smooth movement --- */
+function unitEl(u){return document.getElementById('unit-'+u.id);}
+function tilePos(x,y){const c=cells[y][x];return {l:c.offsetLeft,t:c.offsetTop};}
+function tween(dur,fn){return new Promise(res=>{const t0=performance.now();function fr(now){const p=Math.min(1,(now-t0)/dur);fn(p);if(p<1)requestAnimationFrame(fr);else res();}requestAnimationFrame(fr);});}
+const smooth=(p)=>p*p*(3-2*p);
+async function animateMove(u,path){
+  if(!path||!path.length){return;}
+  let el=unitEl(u); if(!el){renderUnits();el=unitEl(u);} 
+  const fx=path[path.length-1][0],fy=path[path.length-1][1];
+  if(!el){u.x=fx;u.y=fy;renderUnits();return;}
+  el.style.transition='none';
+  const pts=[tilePos(u.x,u.y),...path.map(([x,y])=>tilePos(x,y))];
+  const seg=[],cum=[0];let total=0;
+  for(let i=0;i<pts.length-1;i++){const d=Math.hypot(pts[i+1].l-pts[i].l,pts[i+1].t-pts[i].t);seg.push(d);total+=d;cum.push(total);}
+  if(total<1){u.x=fx;u.y=fy;el.style.transition='';renderUnits();return;}
+  const cs=cells[0][0].offsetWidth;
+  const dur=Math.max(170,(total/cs)*125);
+  let lastSeg=-1;
+  await tween(dur,(p)=>{
+    const along=smooth(p)*total;
+    let i=0;while(i<seg.length-1&&cum[i+1]<along)i++;
+    const sp=seg[i]>0?(along-cum[i])/seg[i]:0;const a=pts[i],b=pts[i+1];
+    el.style.left=(a.l+(b.l-a.l)*sp)+'px';el.style.top=(a.t+(b.t-a.t)*sp)+'px';
+    if(i!==lastSeg){lastSeg=i;sfxStep();}
+  });
+  u.x=fx;u.y=fy;el.style.transition='';renderUnits();
 }
 function clearHighlights(){cells.flat().forEach(c=>c.classList.remove('move','atk','skill','tgt'));}
 function clearThreat(){cells.flat().forEach(c=>c.classList.remove('threat'));}
@@ -341,6 +409,127 @@ let dlgQueue=[],dlgCb=null;
 function speak(lines,cb){dlgQueue=lines.slice();dlgCb=cb||null;nextDlg();$('dlgOv').classList.add('show');}
 function nextDlg(){if(dlgQueue.length===0){$('dlgOv').classList.remove('show');const cb=dlgCb;dlgCb=null;if(cb)cb();return;}const l=dlgQueue.shift();$('dlgFace').textContent=l.face||'👤';$('dlgWho').textContent=l.who||'';$('dlgRole').textContent=l.role||'';$('dlgText').innerHTML=l.text||'';}
 $('dlgNext').addEventListener('click',nextDlg);
+
+/* ============================================================
+   AUDIO ENGINE (musique + SFX synthétisés, aucun fichier)
+   ============================================================ */
+const AU={ctx:null,master:null,music:null,sfx:null,muted:false,playing:false,mood:'explore',timer:null,step:0,noise:null,heart:null};
+function audioInit(){
+  if(AU.ctx)return;
+  const C=window.AudioContext||window.webkitAudioContext; if(!C)return;
+  AU.ctx=new C();
+  AU.master=AU.ctx.createGain(); AU.master.gain.value=0.85; AU.master.connect(AU.ctx.destination);
+  const warm=AU.ctx.createBiquadFilter(); warm.type='lowpass'; warm.frequency.value=5200; warm.connect(AU.master);
+  AU.music=AU.ctx.createGain(); AU.music.gain.value=0.0; AU.music.connect(warm);
+  AU.sfx=AU.ctx.createGain(); AU.sfx.gain.value=0.9; AU.sfx.connect(AU.master);
+  // noise buffer
+  const n=AU.ctx.createBuffer(1,AU.ctx.sampleRate*1,AU.ctx.sampleRate); const d=n.getChannelData(0);
+  for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1; AU.noise=n;
+}
+function audioResume(){ if(AU.ctx&&AU.ctx.state==='suspended')AU.ctx.resume(); }
+function nf(root,semi){return root*Math.pow(2,semi/12);}
+function tone(type,freq,t,dur,gain,bus,detune){
+  const o=AU.ctx.createOscillator(),g=AU.ctx.createGain();
+  o.type=type; o.frequency.value=freq; if(detune)o.detune.value=detune;
+  const a=0.012,r=Math.min(0.25,dur*0.5);
+  g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(gain,t+a);
+  g.gain.setValueAtTime(gain,t+Math.max(a,dur-r)); g.gain.linearRampToValueAtTime(0.0001,t+dur);
+  o.connect(g); g.connect(bus||AU.music); o.start(t); o.stop(t+dur+0.03);
+}
+function noiseBurst(t,dur,gain,type,freq,Q,bus){
+  const s=AU.ctx.createBufferSource(); s.buffer=AU.noise;
+  const f=AU.ctx.createBiquadFilter(); f.type=type||'bandpass'; f.frequency.value=freq||1500; if(Q)f.Q.value=Q;
+  const g=AU.ctx.createGain(); g.gain.setValueAtTime(gain,t); g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  s.connect(f); f.connect(g); g.connect(bus||AU.sfx); s.start(t); s.stop(t+dur+0.02);
+}
+function sweep(type,f0,f1,t,dur,gain,bus){
+  const o=AU.ctx.createOscillator(),g=AU.ctx.createGain();
+  o.type=type; o.frequency.setValueAtTime(f0,t); o.frequency.exponentialRampToValueAtTime(f1,t+dur);
+  g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(gain,t+0.01); g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  o.connect(g); g.connect(bus||AU.sfx); o.start(t); o.stop(t+dur+0.02);
+}
+const MOODS={
+  explore:{bpm:84,root:220,scale:[0,2,3,5,7,8,10],prog:[0,5,3,4],pad:0.20,arp:0.085,drive:0,vol:0.42},
+  battle:{bpm:126,root:165,scale:[0,2,3,5,7,8,10],prog:[0,0,5,6],pad:0.17,arp:0.11,drive:1,vol:0.50},
+  boss:{bpm:140,root:138,scale:[0,1,3,5,6,8,10],prog:[0,0,1,5],pad:0.19,arp:0.10,drive:1,vol:0.55},
+  danger:{bpm:150,root:147,scale:[0,1,3,5,6,8,10],prog:[0,1,0,1],pad:0.16,arp:0.12,drive:1,vol:0.52},
+};
+function triadOf(M,bar){const sc=M.scale,deg=M.prog[bar%M.prog.length];
+  const g=(i)=>{let oct=0,d=deg+i;while(d>=7){d-=7;oct+=12;}return sc[d]+oct;};
+  return [g(0),g(2),g(4)];}
+function kick(t){const o=AU.ctx.createOscillator(),g=AU.ctx.createGain();o.type='sine';o.frequency.setValueAtTime(140,t);o.frequency.exponentialRampToValueAtTime(48,t+0.12);g.gain.setValueAtTime(0.5,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.16);o.connect(g);g.connect(AU.music);o.start(t);o.stop(t+0.18);}
+function hat(t,gain){noiseBurst(t,0.04,gain,'highpass',7000,0,AU.music);}
+function musicStep(){
+  if(!AU.playing||AU.muted||!AU.ctx)return;
+  const M=MOODS[AU.mood],t=AU.ctx.currentTime+0.03;
+  const beat=60/M.bpm, six=beat/4;
+  const step=AU.step%16, bar=Math.floor(AU.step/16);
+  const tri=triadOf(M,bar);
+  if(step===0||step===8){tone('sawtooth',nf(M.root,tri[0]-12),t,beat*2*0.92,0.20,AU.music);}
+  if(step===0){tri.forEach((s,i)=>tone('triangle',nf(M.root,s),t,beat*4*0.95,M.pad*0.5,AU.music,(i-1)*5));}
+  if(step%2===0){const an=tri[(step/2)%3]+12;tone('triangle',nf(M.root,an),t,six*1.6,M.arp,AU.music);}
+  if(M.drive){if(step%4===0)kick(t);if(step%2===0)hat(t,step%4===0?0.05:0.028);}
+  if(M.mood!=='explore'&&step===12&&bar%2===1){tone('square',nf(M.root,tri[1]+12),t,beat*0.6,0.05,AU.music);}
+  AU.step++;
+}
+function setMood(m){
+  if(!AU.ctx)return;
+  AU.mood=m; const M=MOODS[m];
+  AU.music.gain.cancelScheduledValues(AU.ctx.currentTime);
+  AU.music.gain.linearRampToValueAtTime(AU.muted?0:M.vol,AU.ctx.currentTime+0.8);
+  const six=(60/M.bpm)/4;
+  if(AU.timer)clearInterval(AU.timer);
+  AU.timer=setInterval(musicStep,six*1000);
+}
+function startMusic(m){ audioInit(); if(!AU.ctx)return; audioResume(); AU.playing=true; AU.step=0; setMood(m||'battle'); }
+function sfxHit(){if(!AU.ctx||AU.muted)return;const t=AU.ctx.currentTime;noiseBurst(t,0.09,0.5,'bandpass',1400,1.2);sweep('sine',180,70,t,0.12,0.4);}
+function sfxCrit(){if(!AU.ctx||AU.muted)return;const t=AU.ctx.currentTime;noiseBurst(t,0.14,0.6,'bandpass',1800,1,0);sweep('sawtooth',260,60,t,0.22,0.45);tone('square',880,t,0.18,0.12);tone('square',1320,t,0.18,0.10,null,6);}
+function sfxMiss(){if(!AU.ctx||AU.muted)return;const t=AU.ctx.currentTime;noiseBurst(t,0.16,0.16,'bandpass',2600,0.6);}
+function sfxMagic(){if(!AU.ctx||AU.muted)return;const t=AU.ctx.currentTime;sweep('triangle',320,940,t,0.22,0.3);sweep('sine',640,1500,t,0.22,0.12);}
+function sfxHeal(){if(!AU.ctx||AU.muted)return;const t=AU.ctx.currentTime;[0,4,7,12].forEach((s,i)=>tone('sine',nf(523,s),t+i*0.05,0.4,0.18));}
+function sfxDeath(){if(!AU.ctx||AU.muted)return;const t=AU.ctx.currentTime;sweep('sawtooth',200,38,t,0.5,0.32);noiseBurst(t,0.4,0.22,'lowpass',900,0);}
+function sfxSelect(){if(!AU.ctx||AU.muted)return;tone('triangle',640,AU.ctx.currentTime,0.06,0.16);}
+function sfxConfirm(){if(!AU.ctx||AU.muted)return;const t=AU.ctx.currentTime;tone('triangle',760,t,0.05,0.16);tone('triangle',1140,t+0.05,0.07,0.14);}
+function sfxStep(){if(!AU.ctx||AU.muted)return;noiseBurst(AU.ctx.currentTime,0.03,0.05,'lowpass',420,0);}
+function sfxStinger(){if(!AU.ctx||AU.muted)return;const t=AU.ctx.currentTime;tone('sawtooth',nf(110,0),t,0.6,0.16);tone('sawtooth',nf(110,1),t,0.6,0.12);tone('sawtooth',nf(110,6),t,0.6,0.10);sweep('sine',90,55,t,0.6,0.18);}
+function sfxFanfare(){if(!AU.ctx||AU.muted)return;const t=AU.ctx.currentTime;[0,4,7,12,16].forEach((s,i)=>{tone('triangle',nf(262,s),t+i*0.12,0.5,0.22);tone('sawtooth',nf(131,s),t+i*0.12,0.5,0.08);});}
+function sfxDirge(){if(!AU.ctx||AU.muted)return;const t=AU.ctx.currentTime;[0,-2,-5,-7].forEach((s,i)=>tone('sawtooth',nf(196,s),t+i*0.34,0.7,0.2));}
+function startHeart(){ if(AU.heart||!AU.ctx)return; const beat=()=>{if(AU.muted||!AU.ctx)return;const t=AU.ctx.currentTime;sweep('sine',90,46,t,0.13,0.4);sweep('sine',90,46,t+0.22,0.11,0.3);}; beat(); AU.heart=setInterval(beat,1100); }
+function stopHeart(){ if(AU.heart){clearInterval(AU.heart);AU.heart=null;} }
+
+/* ============================================================
+   GAME FEEL (tremblement, flash, bannière, vignette, carte boss)
+   ============================================================ */
+function screenShake(mag=8,dur=320){
+  const el=document.querySelector('.boardwrap'); if(!el)return; const t0=performance.now();
+  function fr(now){const p=(now-t0)/dur; if(p>=1){el.style.transform='';return;} const m=mag*(1-p); el.style.transform=`translate(${(Math.random()*2-1)*m}px,${(Math.random()*2-1)*m}px)`; requestAnimationFrame(fr);} requestAnimationFrame(fr);
+}
+function flash(cls){const el=$('flash'); el.className=''; void el.offsetWidth; el.className=(cls||'')+' go';}
+function banner(txt,kind){const b=$('banner'),t=$('bannerTxt'); t.textContent=txt; t.className='bnr bnr-'+(kind||'player'); b.className=''; void b.offsetWidth; b.className='show';}
+function flashText(txt,kind){ banner(txt,kind); }
+function showBossCard(face,name,title,cb){
+  $('bcFace').textContent=face; $('bcName').textContent=(name||'').toUpperCase(); $('bcTitle').textContent=title||'';
+  const c=$('bossCard'); c.className=''; void c.offsetWidth; c.className='show';
+  sfxStinger(); screenShake(6,500);
+  setTimeout(()=>{c.className='';if(cb)cb();},2800);
+}
+let dangerOn=false;
+function updateDanger(){
+  const low = hero && hero.alive && phase==='campaign' && (hero.hp/hero.maxhp)<=0.33 && gameState!=='win' && gameState!=='lose';
+  if(low&&!dangerOn){dangerOn=true;$('vignette').classList.add('danger');startHeart();}
+  else if(!low&&dangerOn){dangerOn=false;$('vignette').classList.remove('danger');stopHeart();}
+}
+
+/* mute toggle */
+$('muteBtn').addEventListener('click',()=>{
+  audioInit();
+  AU.muted=!AU.muted;
+  $('muteBtn').textContent=AU.muted?'🔇':'🔊';
+  $('muteBtn').classList.toggle('off',AU.muted);
+  if(AU.ctx){ AU.music.gain.linearRampToValueAtTime(AU.muted?0:(MOODS[AU.mood]||{vol:0.5}).vol,AU.ctx.currentTime+0.2);
+    AU.master.gain.linearRampToValueAtTime(AU.muted?0:0.85,AU.ctx.currentTime+0.2); }
+  if(AU.muted)stopHeart(); else if(dangerOn)startHeart();
+});
 
 /* ---------- INSPECT ---------- */
 function frType(t){return {sword:'épée',lance:'lance',axe:'hache',bow:'arc',tome:'magie',staff:'soin'}[t]||t;}
@@ -458,22 +647,143 @@ const ENEMY_ARCH=[
   {name:'Mage noir',glyph:'🔮',w:'e_tome',base:{maxhp:20,atk:12,def:4,res:7,skill:8,speed:8,luck:4,mov:5}},
 ];
 function scaleStat(b,lvl,k){return Math.round(b+lvl*k);}
+
+/* ============================================================
+   MOTEUR NARRATIF PROCÉDURAL — saga, boss, crimes, vendetta, amis
+   ============================================================ */
+const NM_DARK=['Vœl','Krath','Mordane','Sarn','Vexis','Drath','Korvash','Maluk','Thorne','Vael','Grimm','Ozrak','Néra','Skarn','Velm','Dûm','Cassiel','Rûd','Phane','Volkir'];
+const NM_LIGHT=['Elya','Brann','Cael','Mira','Tomas','Lysa','Roenn','Sève','Aldûn','Ivar','Nessa','Joran','Wynn','Talia','Edric','Soraya','Linn','Garroth','Méline','Osric'];
+const TITLES_FOE=['le Briseur d\'Aube','la Veuve de Cendre','le Bourreau Pâle','la Main Noire','le Dévoreur','la Lame Sans Nom','le Fléau de l\'Est','la Reine des Corbeaux','le Tyran Brûlé','le Geôlier','la Faucheuse','le Seigneur des Ruines','l\'Œil Sans Sommeil','le Boucher de la Lande','la Cendre Vivante'];
+const PLACES=['Aldenne','Corvath','les Marches de Sel','Bruyère-Noire','Valgarde','le Hameau de Pierre','Thornwick','les Tourbières','Roncebrume','Hautecombe','le Gué d\'Os','Velmire','Cendrelac','les Trois-Chênes','Galdor'];
+const RELATIONS=['ton mentor','ta sœur','ton frère','ton premier amour','ton père d\'armes','ta plus vieille amie','ton chef de clan','ton commandant'];
+const FOE_DEEDS=[
+  (p,l)=>`a réduit ${p} en cendres une nuit sans lune`,
+  (p,l)=>`a enchaîné les habitants de ${p} dans ses mines`,
+  (p,l)=>`a fait pendre ceux qui prononçaient encore le mot « aube »`,
+  (p,l)=>`a empoisonné les puits de ${p} pour mater une révolte`,
+  (p,l)=>`porte au cou les médailles de ceux qu'il a brisés`,
+  (p,l)=>`a juré d'éteindre toute lumière née après la chute de l'Ordre`,
+  (p,l)=>`a rasé ${p} pour l'exemple, puis en a salé la terre`,
+  (p,l)=>`livre les orphelins de ${p} aux Cendres en échange de pouvoir`,
+];
+const FOE_TAUNTS=[
+  (h)=>`Encore une braise qui se croit flamme. ${h.lost.name} aussi y croyait.`,
+  (h)=>`${h.homeland}… je m'en souviens. Cela brûlait si bien.`,
+  (h)=>`Tu portes la colère de ${h.relText}. Elle ne te sauvera pas.`,
+  (h)=>`Agenouille-toi, et je laisserai ${h.homeland} respirer un hiver de plus.`,
+  (h)=>`On envoie un seul soldat ? Le Roi des Cendres me gâte.`,
+];
+const ALLY_KINDS=[
+  {cls:'Lame errante',glyph:'🗡️',w:'laurore',base:{maxhp:27,atk:12,def:8,res:5,skill:11,speed:11,luck:7,mov:6}},
+  {cls:'Sentinelle',glyph:'🛡️',w:'lance',base:{maxhp:32,atk:11,def:12,res:4,skill:7,speed:6,luck:6,mov:5}},
+  {cls:'Hache-rebelle',glyph:'🪓',w:'axe',base:{maxhp:34,atk:13,def:8,res:3,skill:6,speed:7,luck:5,mov:6}},
+  {cls:'Franc-tireuse',glyph:'🏹',w:'bow',base:{maxhp:24,atk:11,def:6,res:6,skill:12,speed:12,luck:8,mov:6}},
+  {cls:'Mage déserteur',glyph:'🔮',w:'tome',base:{maxhp:22,atk:13,def:4,res:9,skill:11,speed:9,luck:7,mov:5}},
+  {cls:'Guérisseuse',glyph:'✚',w:'staff',healer:true,base:{maxhp:24,atk:6,def:6,res:10,skill:8,speed:8,luck:10,mov:5}},
+];
+const ALLY_JOIN=[
+  (h)=>`Tu te bats comme on se battait jadis. Laisse-moi porter ta bannière.`,
+  (h)=>`J'ai fui les Cendres trop longtemps. Avec toi, je veux me retourner.`,
+  (h)=>`On dit que tu vas affronter le Roi. Je veux être là quand il tombera.`,
+  (h)=>`Ma dette envers ${h.homeland} n'est pas payée. Je viens avec toi.`,
+];
+const FOE_VOW=[
+  (h)=>`Tu m'épargnes ? Sot. Je reviendrai pour ${h.homeland}.`,
+  (h)=>`Retiens mon nom. La prochaine fois, c'est toi qui saigneras.`,
+  (h)=>`Tu aurais dû me tuer. Les Cendres, elles, n'oublient pas.`,
+];
+
+function femName(n){return /[ae]$/.test(n)&&Math.random()<0.7;}
+function foeName(){return pick(NM_DARK);}
+function allyName(){return pick(NM_LIGHT);}
+
+let saga=null;
+function newSaga(){ saga={hero:{},defeated:[],nemeses:[],friends:[],spared:0,slain:0}; }
+function genHeroBackstory(){
+  const rel=pick(RELATIONS);
+  saga.hero={
+    homeland:pick(PLACES),
+    lost:{name:allyName(),rel:rel},
+    relText:rel,
+  };
+  saga.hero.lostFull=`${saga.hero.lost.name}, ${rel}`;
+}
+
+function makeFoeIdentity(level,final){
+  const name=foeName();
+  const title=final?'le Roi des Cendres':pick(TITLES_FOE);
+  const glyph=final?'👑':pick(['☠️','👹','⚔️','👁️','🐍','🗡️','🪓','🔮']);
+  const place=pick(PLACES.filter(p=>p!==saga.hero.homeland).concat([saga.hero.homeland]));
+  const deed=pick(FOE_DEEDS)(place,level);
+  const taunt=pick(FOE_TAUNTS)(saga.hero);
+  return {fname:name,title,glyph,deed,place,taunt};
+}
+
+// attach generated narrative to a boss unit
+function dressBoss(b,level,final){
+  const id=makeFoeIdentity(level,final);
+  b.name=final?('Varkos '+id.title.replace('le ','').replace('la ','')):(`${id.fname} ${id.title}`);
+  if(final)b.name='Varkos, '+id.title;
+  b.cls=id.deed.charAt(0).toUpperCase()+id.deed.slice(1);
+  b.glyph=id.glyph; b.portrait=id.glyph;
+  b.narr=id;
+  return b;
+}
+
+/* nemesis bookkeeping */
+function spawnNemesisRecord(fromName,glyph,level,reason){
+  const ret=Math.min(10, level+rnd(1,3));
+  const nem={name:fromName,glyph,returnLevel:ret,grown:0,reason:reason||'',resolved:false};
+  saga.nemeses.push(nem);
+  return nem;
+}
+function dueNemesis(level){ return saga.nemeses.find(n=>!n.resolved&&n.returnLevel<=level); }
+
+/* recruitment chance */
+function recruitChance(){ return clamp(46 + (hero.luck||0)*2 + saga.spared*3 - saga.slain, 18, 88); }
+
+/* build an ally unit (recruited / merc) with a generated identity */
+function makeAlly(level,kindObj,named){
+  const a=kindObj||pick(ALLY_KINDS);
+  const nm=named||allyName();
+  return mk(Object.assign({faction:'player',name:nm,cls:a.cls,glyph:a.glyph,weapon:WP[a.w],
+    items:[{name:'Vulnéraire',heal:15}],healer:!!a.healer,portrait:a.glyph,recruit:true,
+    skill_name:null},JSON.parse(JSON.stringify(a.base)),
+    {maxhp:scaleStat(a.base.maxhp,level,1.5),atk:scaleStat(a.base.atk,level,0.75),def:scaleStat(a.base.def,level,0.55),
+     res:scaleStat(a.base.res,level,0.4),skill:scaleStat(a.base.skill,level,0.35),speed:scaleStat(a.base.speed,level,0.35),
+     x:5,y:9}));
+}
+
 function genEnemies(lvl,spawns,bossLevel){
   const list=[];
   const count=Math.min(7,2+Math.ceil(lvl/1.6));
   const used=new Set();
   function freeSpawn(){let s;let tries=0;do{s=pick(spawns);tries++;}while(used.has(key(s[0],s[1]))&&tries<40);used.add(key(s[0],s[1]));return s;}
   if(bossLevel){
-    const s=[7,1];used.add(key(7,1));
+    used.add(key(7,1));
     if(level===10){
-      list.push(mk({faction:'boss',name:'Varkos',cls:'Le Roi des Cendres',glyph:'👑',
+      const b=mk({faction:'boss',name:'Varkos',cls:'',glyph:'👑',
         maxhp:scaleStat(70,lvl,2),atk:scaleStat(16,lvl,0.8),def:scaleStat(12,lvl,0.5),res:scaleStat(14,lvl,0.5),
-        skill:scaleStat(10,lvl,0.4),speed:scaleStat(9,lvl,0.3),luck:8,mov:0,weapon:WP.boss,items:[],boss:true,special_cd:2,portrait:'👑',x:7,y:1,finalBoss:true}));
+        skill:scaleStat(10,lvl,0.4),speed:scaleStat(9,lvl,0.3),luck:8,mov:0,weapon:WP.boss,items:[],boss:true,special_cd:2,portrait:'👑',x:7,y:1,finalBoss:true});
+      dressBoss(b,lvl,true); list.push(b);
     } else {
-      list.push(mk({faction:'boss',name:'Lieutenant des Cendres',cls:'Champion ennemi',glyph:'☠️',
+      const b=mk({faction:'boss',name:'',cls:'',glyph:'☠️',
         maxhp:scaleStat(40,lvl,2.4),atk:scaleStat(13,lvl,0.9),def:scaleStat(10,lvl,0.6),res:scaleStat(8,lvl,0.5),
-        skill:scaleStat(8,lvl,0.4),speed:scaleStat(8,lvl,0.4),luck:6,mov:5,weapon:WP.e_axe,items:[],boss:true,special_cd:3,portrait:'☠️',x:7,y:1}));
+        skill:scaleStat(8,lvl,0.4),speed:scaleStat(8,lvl,0.4),luck:6,mov:5,weapon:pick([WP.e_axe,WP.e_lance,WP.boss]),items:[],boss:true,special_cd:3,portrait:'☠️',x:7,y:1});
+      dressBoss(b,lvl,false); list.push(b);
     }
+  }
+  // returning nemesis as an elite
+  const nem=dueNemesis(level);
+  if(nem){
+    nem.resolved=true; // resolved by appearing & (intended) defeat this level
+    const s=freeSpawn();
+    const elite=mk({faction:'enemy',name:nem.name+' le Revenant',cls:'Ennemi juré — '+(nem.reason||'revenu se venger'),glyph:nem.glyph||'😡',
+      weapon:pick([WP.e_axe,WP.e_sword,WP.e_bow,WP.e_tome]),items:[],ai:'aggressive',nemesis:true,
+      maxhp:scaleStat(30,level,2.6),atk:scaleStat(12,level,1.1),def:scaleStat(8,level,0.7),res:scaleStat(5,level,0.6),
+      skill:scaleStat(9,level,0.5),speed:scaleStat(9,level,0.5),luck:6,mov:6,x:s[0],y:s[1]});
+    list.push(elite);
+    pendingNemesisTaunt=nem;
   }
   for(let i=0;i<count;i++){
     const a=pick(ENEMY_ARCH);const s=freeSpawn();
@@ -484,6 +794,7 @@ function genEnemies(lvl,spawns,bossLevel){
   }
   return list;
 }
+let pendingNemesisTaunt=null;
 
 /* ---------- CAMPAIGN SETUP ---------- */
 function makeHero(name,clsId){
@@ -508,25 +819,62 @@ function makeMerc(lvl,kind){
 }
 function startCampaignLevel(){
   busy=false; threatOn=false; clearThreat(); hideMenu();
+  pendingNemesisTaunt=null;
   const bossLevel=(level%5===0);
   const {pSpawns,eSpawns}=genMap(level,bossLevel);
-  // refill companions to 2 (1 of them a healer-ish from lvl 2)
-  companions=companions.filter(c=>c.alive);
-  while(companions.length<2){ companions.push(makeMerc(level, companions.some(c=>c.healer)?'fight':'heal')); }
+  // persistent roster: keep recruited friends; only fill with a basic ally if too small
+  companions=companions.filter(c=>c.alive!==false||c.recruit||c.merc); // keep roster identities
+  companions.forEach(c=>{c.alive=true;});
+  while(companions.length<2){ companions.push(makeAlly(level, companions.some(c=>c.healer)?null:ALLY_KINDS[5], allyName())); }
+  if(companions.length>4) companions=companions.slice(0,4); // deploy up to 4
   // reset per-level state
   hero.acted=false;hero.skillCd=0;hero.buffDef=0;hero.buffTurns=0;hero.hp=hero.maxhp;
   companions.forEach(c=>{c.acted=false;c.skillCd=0;c.buffDef=0;c.buffTurns=0;c.alive=true;c.hp=c.maxhp;});
-  // build units list
   units=[hero,...companions];
-  // assign player spawns
   const ps=pSpawns.slice(); const order=[hero,...companions];
   order.forEach((u,i)=>{const s=ps[i]||ps[ps.length-1]||[6,9];u.x=s[0];u.y=s[1];u.alive=true;});
-  // enemies
   const enemies=genEnemies(level,eSpawns,bossLevel);
   units=units.concat(enemies);
   renderBoard();fitBoard();renderUnits();
   turn=1;gameState='playerPhase';selected=null;mode='idle';updateTurnUI();
-  log(`— Niveau ${level} — ${bossLevel?(level===10?'Le Roi des Cendres vous attend.':'Un Lieutenant garde la voie.'):'Survivez et vainquez tous les ennemis.'}`,'sys');
+  const nemNow=pendingNemesisTaunt;
+  if(bossLevel){
+    setMood('boss');
+    const b=units.find(u=>u.boss);
+    log(`— Niveau ${level} — ${b?b.name:'Un champion'} barre la route.`,'sys');
+    if(b){ busy=true;
+      showBossCard(b.glyph,b.name,b.narr?('« '+capitalize(b.narr.deed)+' »'):b.cls,()=>{
+        const lines=[];
+        if(b.narr){
+          lines.push({who:b.name,role:'',face:b.glyph,text:`<span class="em">${b.narr.deed.charAt(0).toUpperCase()+b.narr.deed.slice(1)}.</span>`});
+          lines.push({who:b.name,role:'',face:b.glyph,text:b.narr.taunt});
+          lines.push({who:hero.name,role:hero.cls,face:hero.glyph,text:bossReplyFor(b)});
+        }
+        if(nemNow) lines.push({who:nemNow.name+' le Revenant',role:'Ennemi juré',face:nemNow.glyph||'😡',text:`Tu te souviens de moi, ${hero.name} ? <span class="em">Moi, je n'ai pas oublié.</span>`});
+        if(lines.length) speak(lines,()=>{busy=false;banner('À VOUS','player');});
+        else {busy=false;banner('À VOUS','player');}
+      });
+    }
+  } else {
+    setMood('battle');
+    log(`— Niveau ${level} — Survivez et vainquez tous les ennemis.`,'sys');
+    if(nemNow){
+      busy=true;
+      speak([{who:nemNow.name+' le Revenant',role:'Ennemi juré',face:nemNow.glyph||'😡',text:`${capitalize(nemNow.reason||'Je suis revenu')}. <span class="em">Cette fois, tu tombes.</span>`}],()=>{busy=false;banner('NIVEAU '+level,'player');});
+    } else {
+      banner('NIVEAU '+level,'player');
+    }
+  }
+}
+function capitalize(s){return s?s.charAt(0).toUpperCase()+s.slice(1):s;}
+function bossReplyFor(b){
+  const opts=[
+    `Tu parles de ${b.narr.place} comme d'un trophée. Je vais te l'arracher.`,
+    `${saga.hero.lost.name} est tombé pour que des gens comme toi disparaissent.`,
+    `J'ai traversé dix ans de cendres pour ce moment. Lève ton arme.`,
+    `Plus un mot. Pour ${saga.hero.homeland}.`,
+  ];
+  return pick(opts);
 }
 
 /* ---------- SELECTION & MOVE ---------- */
@@ -554,7 +902,8 @@ function onCellClick(x,y){
 }
 async function moveSelectedTo(x,y){
   busy=true;hideMenu();const u=selected;const path=pathTo(sel.prev,u,x,y);clearHighlights();
-  for(const [px,py] of path){u.x=px;u.y=py;renderUnits();await sleep(85);}
+  if(path.length)sfxSelect();
+  await animateMove(u,path);
   u.x=x;u.y=y;renderUnits();inspect(u);busy=false;openActionMenu();
 }
 
@@ -598,12 +947,16 @@ function floatText(u,txt,cls){const c=cells[u.y]&&cells[u.y][u.x];if(!c)return;c
 function hurtAnim(u){const el=$('unit-'+u.id);if(el){el.classList.add('hurt');setTimeout(()=>el.classList.remove('hurt'),300);}}
 async function strike(att,def,opts){
   if(!att.alive||!def.alive)return;
-  if(Math.random()*100>=computeHit(att,def)){floatText(def,'Raté','miss');log(`${att.name} manque ${def.name}.`,att.faction==='player'?'pl':'en');await sleep(380);return;}
+  if(Math.random()*100>=computeHit(att,def)){sfxMiss();floatText(def,'Raté','miss');hurtAnim(att);log(`${att.name} manque ${def.name}.`,att.faction==='player'?'pl':'en');await sleep(360);return;}
   const crit=Math.random()*100<computeCrit(att,def,opts);
   let dmg=computeDmg(att,def,opts);if(crit)dmg*=3;
+  // impact feedback
+  if(att.weapon.magic)sfxMagic(); else if(!crit)sfxHit();
+  if(crit){sfxCrit();flash('red');flashText('CRITIQUE !','boss');screenShake(16,420);await sleep(90);}
+  else{screenShake(Math.min(11,4+dmg*0.4),200);await sleep(38);}
   def.hp=Math.max(0,def.hp-dmg);hurtAnim(def);floatText(def,(crit?'★ ':'')+dmg,crit?'crit':'dmg');
   log(`${att.name} ${crit?'<b>critique</b> et ':''}inflige <b>${dmg}</b> à ${def.name}. (${def.hp}/${def.maxhp})`,att.faction==='player'?'pl':'en');
-  renderUnits();await sleep(crit?600:420);
+  renderUnits();await sleep(crit?540:380);
   if(def.hp<=0)await killUnit(def);
 }
 async function resolveCombat(pa){
@@ -623,14 +976,21 @@ async function resolveCombat(pa){
 function bossProloChat(){const b=units.find(u=>u.boss);if(!b||b.spoke)return;b.spoke=true;speak([{who:'Varkos',role:'Le Roi des Cendres',face:'👑',text:'<span class="em">Tu griffes une montagne, écuyer.</span> La Lame ne saigne pas pour si peu.'}]);}
 
 async function killUnit(u){
-  u.alive=false;floatText(u,'✝',u.faction==='player'?'dmg':'heal');
-  log(`<b>${u.name}</b> est tombé.`,u.faction==='player'?'pl':'sys');renderUnits();await sleep(180);
+  u.alive=false;
+  const el=unitEl(u); if(el){el.classList.add('dying');}
+  sfxDeath(); screenShake(12,400);
+  const isAlly=(u.faction==='player');
+  if(isAlly){flash('dark');}
+  floatText(u,'✝',isAlly?'dmg':'heal');
+  log(`<b>${u.name}</b> est tombé.`,isAlly?'pl':'sys');
+  await sleep(480);
+  renderUnits();await sleep(120);
 }
 
 /* ---------- SKILLS / ITEMS / HEAL ---------- */
 function healTargets(u){return allies(u).filter(a=>a.id!==u.id&&man(u.x,u.y,a.x,a.y)<=u.weapon.rmax&&a.hp<a.maxhp);}
 function beginHeal(){const u=selected;const tgts=healTargets(u);mode='choosingSkillTarget';sel.skillMode='heal';sel.healTargets=new Set(tgts.map(t=>t.id));hideMenu();clearHighlights();tgts.forEach(t=>cells[t.y][t.x].classList.add('tgt'));}
-function useItem(){const u=selected;const it=u.items[0];const b=u.hp;u.hp=Math.min(u.maxhp,u.hp+it.heal);floatText(u,'+'+(u.hp-b),'heal');log(`${u.name} utilise ${it.name} (+${u.hp-b}).`,'pl');u.items.shift();renderUnits();finishUnit();}
+function useItem(){const u=selected;const it=u.items[0];const b=u.hp;u.hp=Math.min(u.maxhp,u.hp+it.heal);sfxHeal();floatText(u,'+'+(u.hp-b),'heal');log(`${u.name} utilise ${it.name} (+${u.hp-b}).`,'pl');u.items.shift();renderUnits();finishUnit();}
 function useSkill(){
   const u=selected;hideMenu();
   switch(u.skill_name){
@@ -643,8 +1003,8 @@ function useSkill(){
 }
 async function handleSkillTarget(x,y){
   const u=selected;
-  if(sel.skillMode==='heal'){const t=at(x,y);if(t&&sel.healTargets.has(t.id)){const b=t.hp;t.hp=Math.min(t.maxhp,t.hp+18);floatText(t,'+'+(t.hp-b),'heal');log(`${u.name} soigne ${t.name} (+${t.hp-b}).`,'pl');renderUnits();finishUnit();}return;}
-  if(sel.skillMode==='blast'){if(!sel.blastSet.has(key(x,y)))return;busy=true;clearHighlights();const hits=foes(u).filter(f=>Math.abs(f.x-x)<=1&&Math.abs(f.y-y)<=1);log(`<b>Déflagration</b> — ${hits.length} ennemi(s).`,'pl');for(const f of hits){const dmg=Math.max(0,u.atk+6-f.res);f.hp=Math.max(0,f.hp-dmg);hurtAnim(f);floatText(f,dmg,'dmg');log(`${f.name} subit <b>${dmg}</b>.`,'pl');await sleep(200);if(f.hp<=0)await killUnit(f);}u.skillCd=u.skill_cd;renderUnits();busy=false;if(checkVictory())return;finishUnit();return;}
+  if(sel.skillMode==='heal'){const t=at(x,y);if(t&&sel.healTargets.has(t.id)){const b=t.hp;t.hp=Math.min(t.maxhp,t.hp+18);sfxHeal();floatText(t,'+'+(t.hp-b),'heal');log(`${u.name} soigne ${t.name} (+${t.hp-b}).`,'pl');renderUnits();finishUnit();}return;}
+  if(sel.skillMode==='blast'){if(!sel.blastSet.has(key(x,y)))return;busy=true;clearHighlights();sfxMagic();flash('');screenShake(10,300);const hits=foes(u).filter(f=>Math.abs(f.x-x)<=1&&Math.abs(f.y-y)<=1);log(`<b>Déflagration</b> — ${hits.length} ennemi(s).`,'pl');for(const f of hits){const dmg=Math.max(0,u.atk+6-f.res);f.hp=Math.max(0,f.hp-dmg);hurtAnim(f);floatText(f,dmg,'dmg');log(`${f.name} subit <b>${dmg}</b>.`,'pl');await sleep(200);if(f.hp<=0)await killUnit(f);}u.skillCd=u.skill_cd;renderUnits();busy=false;if(checkVictory())return;finishUnit();return;}
 }
 
 /* ---------- VICTORY / DEFEAT ---------- */
@@ -673,7 +1033,8 @@ async function enemyPhase(){
   deselect();clearThreat();threatOn=false;$('threatBtn').classList.remove('primary');
   gameState='enemyPhase';updateTurnUI();busy=true;
   log('— Phase Ennemie —','en');
-  applyTerrainHeal('enemy');renderUnits();await sleep(300);
+  banner('PHASE ENNEMIE','enemy'); sfxStinger();
+  applyTerrainHeal('enemy');renderUnits();await sleep(620);
 
   // prologue scripted wipe at turn 3
   if(phase==='prologue'&&turn>=3&&!prologueWipeDone){busy=false;await prologueWipe();return;}
@@ -686,10 +1047,12 @@ async function enemyPhase(){
   if(phase==='prologue'){ // prologue: enemies barely scratched; keep going until turn 3 wipe
     if(checkVictory()){busy=false;return;}
     turn++;gameState='playerPhase';updateTurnUI();applyTerrainHeal('player');renderUnits();
+    banner('À VOUS','player');
     log(`— Tour ${turn} —`,'sys');busy=false;return;
   }
   if(checkVictory()){busy=false;return;}
   turn++;gameState='playerPhase';updateTurnUI();applyTerrainHeal('player');renderUnits();
+  banner('À VOUS','player');
   log(`— Tour ${turn} — Phase des Joueurs —`,'sys');busy=false;
 }
 
@@ -701,11 +1064,15 @@ async function prologueWipe(){
     {who:'Varkos',role:'Le Roi des Cendres',face:'👑',text:'<span class="em">Assez joué.</span>\nVois donc ce qu\'est devenu ton maître, Kaell.'},
     {who:'Kaell',role:'Chevalier de l\'Aube',face:'🗡️',text:'Tout le monde — <span class="go">DERRIÈRE MOI !</span>'},
   ], async ()=>{
+    setMood('boss'); sfxStinger(); screenShake(14,600); await sleep(300);
     for(const p of units.filter(u=>u.alive&&u.faction==='player')){
-      floatText(p,'🔥','crit');await sleep(120);p.hp=0;p.alive=false;hurtAnim(p);renderUnits();await sleep(160);
+      flash('red');screenShake(20,400);floatText(p,'🔥','crit');sfxCrit();await sleep(180);p.hp=0;p.alive=false;const el=unitEl(p);if(el)el.classList.add('dying');renderUnits();await sleep(220);
     }
     log('Toute la troupe de l\'Aube est tombée.','en');
-    await sleep(500);
+    if(AU.ctx){AU.music.gain.linearRampToValueAtTime(0,AU.ctx.currentTime+1.4);} AU.playing=false; if(AU.timer)clearInterval(AU.timer);
+    sfxDirge();
+    await sleep(900);
+    flash('dark');
     speak([
       {who:'Varkos',role:'Le Roi des Cendres',face:'👑',text:'Reposez. Veyle est à moi, et au feu qui me dévore.'},
       {who:'…',role:'',face:'🕯️',text:'Ainsi tomba le dernier Ordre de l\'Aube.\nMais une braise, parfois, attend dix ans avant de reprendre.'},
@@ -754,7 +1121,7 @@ async function aiAct(e){
     if(e.special_cd<=0&&near.length){
       e.special_cd=3;
       const dmg=e.finalBoss?10:7;
-      log(`<b>${e.name}</b> exhale le <span style="color:#e8693f">Cri des Cendres</span> !`,'en');floatText(e,'🔥CRI','crit');await sleep(300);
+      log(`<b>${e.name}</b> exhale le <span style="color:#e8693f">Cri des Cendres</span> !`,'en');flashText('CRI DES CENDRES','boss');flash('red');sfxStinger();screenShake(18,520);floatText(e,'🔥','crit');await sleep(420);
       for(const p of near){p.hp=Math.max(0,p.hp-dmg);hurtAnim(p);floatText(p,dmg,'dmg');log(`${p.name} brûle (-${dmg}).`,'en');await sleep(140);if(p.hp<=0)await killUnit(p);}
       renderUnits();if(checkVictory())return;
     }
@@ -774,24 +1141,71 @@ async function aiAct(e){
 function threatAtTile(x,y,players){let n=0;players.forEach(p=>{if(man(p.x,p.y,x,y)<=p.mov+p.weapon.rmax)n++;});return n;}
 function pickRetreat(e,stands,players){let best=null,bs=-1e9;for(const [x,y] of stands){const t=TERR[map[y][x]];const s=-threatAtTile(x,y,players)*10+t.def*4+t.avo*0.1+(t.heal?20:0);if(s>bs){bs=s;best=[x,y];}}return best;}
 function pickAdvance(e,stands,players){let best=null,bs=-1e9;for(const [x,y] of stands){const nd=Math.min(...players.map(p=>man(x,y,p.x,p.y)));const t=TERR[map[y][x]];const s=-nd*4+t.def*2+t.avo*0.05;if(s>bs){bs=s;best=[x,y];}}return best;}
-async function aiMove(e,tx,ty){let path;if(e._prev)path=pathTo(e._prev,e,tx,ty);else{const {prev}=reachable(e);path=pathTo(prev,e,tx,ty);}for(const [px,py] of path){e.x=px;e.y=py;renderUnits();await sleep(75);}e.x=tx;e.y=ty;renderUnits();await sleep(50);}
+async function aiMove(e,tx,ty){let path;if(e._prev)path=pathTo(e._prev,e,tx,ty);else{const {prev}=reachable(e);path=pathTo(prev,e,tx,ty);}await animateMove(e,path);e.x=tx;e.y=ty;renderUnits();await sleep(40);}
 async function aiAttack(e,target){if(!target.alive)return;log(`<b>${e.name}</b> attaque ${target.name}.`,'en');const dist=man(e.x,e.y,target.x,target.y);await strike(e,target,{});if(target.alive&&canCounter(target,e,dist))await strike(target,e,{});if(e.alive&&target.alive&&doubles(e,target))await strike(e,target,{});if(target.alive&&e.alive&&canCounter(target,e,dist)&&doubles(target,e))await strike(target,e,{});renderUnits();checkVictory();}
 
 /* ---------- LEVEL CLEAR / REWARD ---------- */
-function levelClear(){
-  gameState='cleared';
-  if(level===10){ winGame(); return; }
-  hero.lvl=(hero.lvl||1)+1;
-  // companion small growth
-  companions.filter(c=>c.alive).forEach(c=>{c.maxhp+=2;c.atk+=1;c.def+=1;});
-  // build upgrade choices
+function roster(){return companions.length;}
+function runSeq(steps,end){let i=0;(function next(){if(i>=steps.length){end();return;}const s=steps[i++];s(next);})();}
+function showEvent(cfg,done){
+  $('eventModal').innerHTML=`<h2 class="center">${cfg.title}</h2>
+    <div class="dlg-portrait"><div class="dlg-face">${cfg.face||'👤'}</div><div><div class="dlg-who">${cfg.who||''}</div><div class="dlg-role">${cfg.role||''}</div></div></div>
+    ${cfg.body||''}
+    <div class="center" id="evBtns" style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px"></div>`;
+  const wrap=$('eventModal').querySelector('#evBtns');
+  cfg.buttons.forEach(b=>{const el=document.createElement('button');el.className='btn '+(b.cls||'');el.textContent=b.label;el.onclick=()=>{sfxConfirm();b.fn();$('eventOv').classList.remove('show');done();};wrap.appendChild(el);});
+  $('eventOv').classList.add('show');
+}
+function recruitJoin(kindObj,name){
+  const ally=makeAlly(level,kindObj,name);
+  if(companions.length<4){companions.push(ally);}
+  else{let idx=companions.findIndex(c=>c.merc&&!c.recruit);if(idx<0)idx=companions.findIndex(c=>!c.recruit);if(idx<0)idx=0;companions[idx]=ally;}
+  saga.friends.push(name); sfxHeal();
+}
+function maybeRecruit(opts,done){
+  if(roster()>=4 && !opts.force){done();return;}
+  const enemyKind=opts.force==='enemy';
+  const k=pick(ALLY_KINDS.filter(a=>a.healer?Math.random()<0.5:true))||pick(ALLY_KINDS);
+  const who={name:enemyKind?foeName():allyName(),glyph:k.glyph,kind:k};
+  const chance=recruitChance();
+  const plea=enemyKind
+    ? `<b>${who.name}</b>, soldat des Cendres vaincu, jette ses armes :<br>« Je ne veux plus brûler pour lui. Laisse-moi me racheter à tes côtés. »`
+    : `<b>${who.name}</b>, ${k.cls.toLowerCase()}, surgit des ruines :<br>« ${pick(ALLY_JOIN)(saga.hero)} »`;
+  showEvent({
+    title:enemyKind?'Un ennemi à genoux':'Une rencontre',
+    face:k.glyph, role:k.cls,
+    body:`<p class="lore center">${plea}</p><p class="hint center">Chance de ralliement : <b style="color:var(--gold2)">${chance}%</b> — influencée par ta Chance et ta réputation.</p>`,
+    buttons:[
+      {label:`Tenter de le rallier (${chance}%)`,cls:'gold',fn:()=>{
+        if(Math.random()*100<chance){recruitJoin(k,who.name);saga.spared++;log(`✦ <b>${who.name}</b> rejoint ta compagnie !`,'sys');banner('NOUVEL ALLIÉ','player');}
+        else{saga.slain++; if(Math.random()<0.5){spawnNemesisRecord(who.name,'😠',level,`s'est senti trahi par ${hero.name}`);log(`${who.name} refuse, vexé, et jure de revenir.`,'en');} else log(`${who.name} hésite, puis s'en va.`,'pl');}
+      }},
+      {label:enemyKind?'Le laisser partir':'Décliner',cls:'',fn:()=>{
+        if(enemyKind&&Math.random()<0.3){spawnNemesisRecord(who.name,'😠',level,`n'a pas pardonné ton mépris`);log(`${who.name} crache à terre — tu t'es fait un ennemi.`,'en');}
+        else log('Tu poursuis ta route.','pl');
+      }},
+    ]
+  },done);
+}
+function rivalEvent(done){
+  const nm=foeName();
+  showEvent({
+    title:'Un défi',face:'⚔️',role:'Mercenaire arrogant',
+    body:`<p class="lore center"><b>${nm}</b> te barre la route :<br>« On dit que tu veux tuer le Roi. Prouve-moi que tu en es digne. »</p>`,
+    buttons:[
+      {label:'Croiser le fer (amical)',cls:'gold',fn:()=>{const c=recruitChance();if(Math.random()*100<c){recruitJoin(pick(ALLY_KINDS),nm);log(`Impressionné, <b>${nm}</b> rejoint ta compagnie !`,'sys');banner('NOUVEL ALLIÉ','player');}else{spawnNemesisRecord(nm,'😤',level,`a juré de te vaincre un jour`);log(`${nm} perd et jure de revenir plus fort.`,'en');}}},
+      {label:'L\'ignorer',cls:'',fn:()=>{if(Math.random()<0.5){spawnNemesisRecord(nm,'😤',level,`n'a pas digéré ton dédain`);log(`${nm} prend ton silence pour du mépris — un ennemi de plus.`,'en');}else log(`${nm} hausse les épaules et disparaît.`,'pl');}},
+    ]
+  },done);
+}
+function showUpgrade(done){
   const pool=[
     {ic:'❤️',t:'Vigueur',d:'+6 PV max',fn:()=>{hero.maxhp+=6;hero.hp+=6;}},
     {ic:'⚔️',t:'Force',d:'+2 Attaque',fn:()=>{hero.atk+=2;}},
     {ic:'🛡️',t:'Cuirasse',d:'+2 Défense',fn:()=>{hero.def+=2;}},
     {ic:'🌀',t:'Célérité',d:'+1 Vitesse',fn:()=>{hero.speed+=1;}},
     {ic:'🎯',t:'Adresse',d:'+2 Habileté',fn:()=>{hero.skill+=2;}},
-    {ic:'🍀',t:'Fortune',d:'+2 Chance',fn:()=>{hero.luck+=2;}},
+    {ic:'🍀',t:'Fortune',d:'+2 Chance (et meilleur recrutement)',fn:()=>{hero.luck+=2;}},
     {ic:'🜂',t:'Réserve',d:'Récupère un Vulnéraire',fn:()=>{hero.items.push({name:'Vulnéraire',heal:15});}},
     {ic:'✨',t:'Magie de l\'arme',d:'+1 Puissance d\'arme',fn:()=>{hero.weapon=Object.assign({},hero.weapon,{might:hero.weapon.might+1});}},
   ];
@@ -800,35 +1214,67 @@ function levelClear(){
     <p class="lore center">Tu te renforces. Choisis une amélioration.</p>
     <div class="upgrades">${choices.map((c,i)=>`<div class="upcard" data-i="${i}"><div class="ui">${c.ic}</div><div class="ut">${c.t}</div><div class="hint">${c.d}</div></div>`).join('')}</div>`;
   $('rewardOv').classList.add('show');
-  $('rewardModal').querySelectorAll('.upcard').forEach(el=>el.onclick=()=>{
-    choices[+el.dataset.i].fn();
-    $('rewardOv').classList.remove('show');
-    level++;
-    startCampaignLevel();
-  });
+  $('rewardModal').querySelectorAll('.upcard').forEach(el=>el.onclick=()=>{choices[+el.dataset.i].fn();sfxConfirm();$('rewardOv').classList.remove('show');done();});
+}
+function levelClear(){
+  gameState='cleared';
+  if(level===10){ winGame(); return; }
+  const wasBoss=(level%5===0);
+  const bossUnit=units.find(u=>u.boss);
+  const bname=bossUnit?bossUnit.name:'le champion';
+  hero.lvl=(hero.lvl||1)+1;
+  companions.filter(c=>c.alive).forEach(c=>{c.maxhp+=2;c.atk+=1;c.def+=1;});
   log(`Niveau ${level} terminé !`,'sys');
+
+  const steps=[];
+  if(wasBoss){
+    saga.defeated.push(bname);
+    steps.push(done=>speak([{who:hero.name,role:hero.cls,face:hero.glyph,text:pick([`Un de moins entre moi et le Roi des Cendres.`,`Pour ${saga.hero.homeland}. Toujours.`,`${saga.hero.lost.name}… c'était pour toi.`])}],done));
+    if(Math.random()<0.55){
+      const nm=foeName();const rec=spawnNemesisRecord(nm,pick(['😡','☠️','⚔️','👹']),level,`a juré de venger ${bname}`);
+      steps.push(done=>speak([{who:nm,role:'Lieutenant survivant',face:rec.glyph,text:`Tu as tué ${bname}. <span class="em">Je jure sur les Cendres de te retrouver, ${hero.name}.</span>`}],done));
+    } else {
+      steps.push(done=>maybeRecruit({force:'enemy'},done));
+    }
+  } else {
+    const roll=Math.random();
+    if(roster()<4 && roll<0.40){ steps.push(done=>maybeRecruit({},done)); }
+    else if(roll<0.52){ steps.push(done=>rivalEvent(done)); }
+  }
+  steps.push(done=>showUpgrade(done));
+  runSeq(steps, ()=>{ AU.playing=true; level++; startCampaignLevel(); });
 }
 function winGame(){
   gameState='win';
+  stopHeart();$('vignette').classList.remove('danger');dangerOn=false;
+  if(AU.ctx){AU.music.gain.linearRampToValueAtTime(0,AU.ctx.currentTime+1.2);} AU.playing=false; if(AU.timer)clearInterval(AU.timer);
+  sfxFanfare();
   speak([
     {who:'Varkos',role:'Le Roi des Cendres',face:'👑',text:'<span class="em">…Toi ?</span> Une braise née de mes propres cendres ?'},
     {who:hero.name,role:hero.cls,face:hero.glyph,text:'Vous avez brûlé tout ce que l\'Aube protégeait.\n<span class="go">Aujourd\'hui, le feu s\'éteint.</span>'},
     {who:'Varkos',role:'Le Roi des Cendres',face:'👑',text:'Achève-le… libère-moi de la Lame. Et souviens-toi :\nce n\'est pas l\'arme qui corrompt, mais la main qui croit n\'avoir <span class="go">rien à perdre</span>.'},
   ],()=>{
+    const friends=saga.friends.length?saga.friends.join(', '):'aucun (tu as marché seul)';
+    const foesBeaten=saga.defeated.length;
     $('endModal').innerHTML=`<div class="endbig win">⚜ VEYLE EST LIBRE ⚜</div>
-      <p class="lore center"><span class="go">${hero.name}</span> brise la Lame d'Aurore et disperse les cendres du Roi.<br>
-      Dix ans après la chute de l'Aube, une nouvelle aube se lève — la tienne.<br><br>
+      <p class="lore center"><span class="go">${hero.name}</span> de <span class="go">${saga.hero.homeland}</span> brise la Lame d'Aurore et disperse les cendres du Roi.<br>
+      Quelque part, <span class="em">${saga.hero.lostFull}</span> peut enfin reposer.<br><br>
+      Champions tombés sous ta lame : <b>${foesBeaten}</b>.<br>
+      Compagnons ralliés en chemin : <b>${friends}</b>.<br><br>
       <b>Héros niveau ${hero.lvl}.</b> Tu peux poursuivre l'aventure en mode sans fin.</p>
       <div class="center" style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
         <button class="btn gold" id="endless">Continuer (sans fin) ▸</button>
-        <button class="btn" onclick="location.reload()">Recommencer</button></div>`;
+        <button class="btn" onclick="location.reload()">Nouvelle saga</button></div>`;
     $('endOv').classList.add('show');
-    $('endless').onclick=()=>{$('endOv').classList.remove('show');level++;startCampaignLevel();};
-    log('VICTOIRE — Varkos est vaincu.','sys');
+    $('endless').onclick=()=>{$('endOv').classList.remove('show');AU.playing=true;level++;startCampaignLevel();};
+    log('VICTOIRE — le Roi des Cendres est vaincu.','sys');
   });
 }
 function loseGame(){
   gameState='lose';
+  stopHeart();$('vignette').classList.remove('danger');dangerOn=false;
+  if(AU.ctx){AU.music.gain.linearRampToValueAtTime(0,AU.ctx.currentTime+1.0);} AU.playing=false; if(AU.timer)clearInterval(AU.timer);
+  flash('dark'); sfxDirge();
   $('endModal').innerHTML=`<div class="endbig lose">☠ FIN DU VOYAGE ☠</div>
     <p class="lore center"><span class="go">${hero.name}</span> est tombé au niveau ${level}.<br>
     Les cendres reprennent ce qu'elles avaient cédé… pour l'instant.<br><br>
@@ -850,25 +1296,31 @@ function openCreation(){
       <div class="hint">${c.cls} · ${frType(c.weapon.type)}</div>
       <div class="pro">✔ ${c.pros}</div><div class="con">✘ ${c.cons}</div>
       <div class="st">PV ${b.maxhp} · Atq ${b.atk} · Déf ${b.def} · Rés ${b.res} · Vit ${b.speed} · Mvt ${b.mov} — Compétence : <b style="color:var(--gold2)">${c.skill}</b></div>`;
-    el.onclick=()=>{chosenClass=c.id;grid.querySelectorAll('.classcard').forEach(x=>x.classList.remove('sel'));el.classList.add('sel');$('createBtn').disabled=false;$('createBtn').textContent='Commencer l\'aventure ▸';};
+    el.onclick=()=>{audioInit();audioResume();sfxSelect();chosenClass=c.id;grid.querySelectorAll('.classcard').forEach(x=>x.classList.remove('sel'));el.classList.add('sel');$('createBtn').disabled=false;$('createBtn').textContent='Commencer l\'aventure ▸';};
     grid.appendChild(el);
   });
   $('creationOv').classList.add('show');
 }
 $('createBtn').addEventListener('click',()=>{
   if(!chosenClass)return;
+  startMusic('battle'); AU.playing=true;
   const name=($('nameInput').value||'Cendre').trim().slice(0,14)||'Cendre';
   hero=makeHero(name,chosenClass);
   companions=[];
+  newSaga(); genHeroBackstory();
   $('creationOv').classList.remove('show');
   level=1;
   $('log').innerHTML='';
   startCampaignLevel();
-  speak([{who:hero.name,role:hero.cls,face:hero.glyph,text:'Le Roi des Cendres règne encore.\n<span class="go">Pas pour longtemps.</span>'}]);
+  speak([
+    {who:hero.name,role:hero.cls,face:hero.glyph,text:`Je viens de <span class="go">${saga.hero.homeland}</span>.\nLes Cendres m'ont pris <span class="em">${saga.hero.lostFull}</span>.`},
+    {who:hero.name,role:hero.cls,face:hero.glyph,text:`Le Roi des Cendres règne encore.\n<span class="go">Je ne m'arrêterai pas avant de l'avoir éteint.</span>`},
+  ]);
 });
 
 /* ---------- PROLOGUE START ---------- */
 $('introBtn').addEventListener('click',()=>{
+  startMusic('boss'); AU.playing=true;
   $('introOv').classList.remove('show');
   phase='prologue';prologueWipeDone=false;
   buildPrologueMap();setupPrologue();renderBoard();fitBoard();renderUnits();
